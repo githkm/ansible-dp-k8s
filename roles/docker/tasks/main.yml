@@ -18,14 +18,13 @@
     enablerepo: docker-ce-stable
     name: "{{ docker_version }}"
     state: installed
-- name: "修改docker服务文件1"
+- name: "修改docker服务文件"
   template:
     src: docker.service.j2
-    dest: /lib/systemd/system/docker.service
-- name: "修改docker服务文件2"
-  template:
-    src: docker.service.j2
-    dest: /etc/systemd/system/docker.service
+    dest: '{{ item }}'
+  with_items:
+    - /lib/systemd/system/docker.service
+    - /etc/systemd/system/docker.service
 - name: "创建docker配置文件夹"
   file:
     path: /etc/docker

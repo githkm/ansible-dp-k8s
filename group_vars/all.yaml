@@ -9,10 +9,16 @@ gpgkey: https://mirrors.aliyun.com
 docker_version: docker-ce-19.03.1
 docker_data_dir: /var/lib
 docker_bip: 169.254.123.1/24
+#etcd
+etcd_version: v3.3.8
+etcd_dir: /opt/etcd-v3.3.8
+etcd_data_dir: /var/lib/etcd
+etcd_url: https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/etcd/3.3.8/etcd-v3.3.8.tar.gz
+etcd_token: c5365b5b-2d99-4060-9d64-bf4143d2a799
 #k8s
 #k8s组件下载地址(建议更换为自己文件服务器)
 download_url: https://storage.googleapis.com/kubernetes-release/release/v1.15.3/bin/linux/amd64
-ssl_dir: /etc/ssl/k8s
+ssl_dir: /opt/cert
 ssl_days: 3600
 ssl_size: 4096
 kube_dir: /etc/kubernetes

@@ -1,0 +1,72 @@
+- name: "安装必要组件"
+  yum:
+    update_cache: yes
+    name: ['chrony', 'lrzsz']
+    state: installed
+- name: "重启chrony服务"
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: restarted
+- name: '清理etcd数据目录'
+  file:
+    path: '{{ etcd_data_dir }}'
+    state: absent
+- name: "创建etcd组"
+  group:
+    name: etcd
+    state: present
+- name: "创建etcd用户"
+  user:
+    name: etcd
+    groups: etcd
+    home: '{{ etcd_data_dir }}'
+    shell: '/sbin/nologin'
+    createhome: yes
+    state: present
+- name: "创建文件夹"
+  file:
+    path: '{{ item }}'
+    owner: etcd
+    group: etcd
+    state: directory
+  with_items:
+    - '{{ etcd_dir }}'
+    - '{{ etcd_data_dir }}'
+    - '{{ etcd_data_dir }}/cert'
+- name: "分发证书"
+  copy:
+    src: "{{ ssl_dir }}/"
+    dest: "{{ etcd_data_dir }}/cert/"
+    owner: etcd
+    group: etcd
+- name: "下载ETCD部署文件"
+  get_url:
+    url: '{{ etcd_url }}'
+    dest: /opt
+- name: "解压安装包"
+  unarchive:
+    src: '/opt/etcd-{{ etcd_version }}.tar.gz'
+    dest: '/opt'
+- name: '再解压'
+  shell: 'tar -xvf $(ls /opt/pkg/etcd/{{ etcd_version }}/rpm/etcd-*.tar.gz) --strip-components=1 -C {{ etcd_dir }}'
+- name: '修改权限'
+  shell: 'chmod a+x {{ etcd_dir }}/{etcd,etcdctl}'
+- name: '创建软链接'
+  file: 
+    src: '{{ item.src }}'
+    dest: '{{ item.dest }}'
+    state: link
+  with_items:
+    - { src: "{{ etcd_dir }}/etcd", dest: "/usr/bin/etcd"}
+    - { src: "{{ etcd_dir }}/etcdctl", dest: "/usr/bin/etcdctl"}
+- name: "创建etcd service"
+  template:
+    src: etcd.service.j2
+    dest: /lib/systemd/system/etcd.service
+- name: "启动etcd"
+  systemd:
+    daemon_reload: yes
+    name: etcd
+    enabled: yes
+    state: started

@@ -1,0 +1,35 @@
+- name: "创建目录"
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ ssl_dir }}"
+    - '{{ etcd_dir  }}'
+- name: "下载cfssl部署文件"
+  get_url:
+    url: '{{ etcd_url }}'
+    dest: /opt
+- name: "解压安装包"
+  unarchive:
+    src: '/opt/etcd-{{ etcd_version }}.tar.gz'
+    dest: '/opt'
+- name: '复制cfssl'
+  copy:
+    src: '/opt/pkg/etcd/v3.3.8/rpm/{{ item }}'
+    dest: '/usr/bin/{{ item }}'
+    mode: '555'
+  with_items:
+    - cfssl
+    - cfssljson
+- name: '生成etcd证书'
+  shell: "{{ item }}"
+  with_items:
+    - echo '{"CN":"CA","key":{"algo":"rsa","size":2048}}' | cfssl gencert -initca - | cfssljson -bare {{ ssl_dir }}/ca -
+    - echo '{"signing":{"default":{"expiry":"438000h","usages":["signing","key encipherment","server auth","client auth"]}}}' >{{ ssl_dir }}/ca-config.json
+    - echo '{"CN":"etcd-server","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert -config={{ ssl_dir }}/ca-config.json -ca={{ ssl_dir }}/ca.pem -ca-key={{ ssl_dir }}/ca-key.pem -hostname={{ ETCD_NODES }} - | cfssljson -bare {{ ssl_dir }}/etcd-server
+    - echo '{"CN":"etcd-client","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert -config={{ ssl_dir }}/ca-config.json -ca={{ ssl_dir }}/ca.pem -ca-key={{ ssl_dir }}/ca-key.pem -hostname={{ ETCD_NODES }} - | cfssljson -bare {{ ssl_dir }}/etcd-client
+    - echo '{"CN":"Peer-CA","key":{"algo":"rsa","size":2048}}' | cfssl gencert -initca - | cfssljson -bare {{ ssl_dir }}/peer-ca -
+    - echo '{"signing":{"default":{"expiry":"438000h","usages":["signing","key encipherment","server auth","client auth"]}}}' >{{ ssl_dir }}/peer-ca-config.json
+- name: '生成etcd peer证书'
+  shell: echo '{"CN":"{{ hostvars[item]["NODE_NAME"] }}","hosts":[""],"key":{"algo":"rsa","size":2048}}' | cfssl gencert -ca={{ ssl_dir }}/peer-ca.pem -ca-key={{ ssl_dir }}/peer-ca-key.pem -config={{ ssl_dir }}/peer-ca-config.json -profile=peer -hostname={{ item }},{{ hostvars[item]["NODE_NAME"] }}.local,{{ hostvars[item]["NODE_NAME"] }} - | cfssljson -bare {{ ssl_dir }}/{{ hostvars[item]["NODE_NAME"] }}
+  with_items: '{{ groups["etcd"] }}'
