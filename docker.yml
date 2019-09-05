@@ -1,0 +1,5 @@
+- name: "签发证书"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: 'docker', tags: "docker" }
