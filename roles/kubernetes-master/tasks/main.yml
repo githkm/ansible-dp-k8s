@@ -1,0 +1,6 @@
+- name: "生成kube-proxy"
+  template:
+    src: kube-proxy.yml.j2
+    dest: /etc/kubernetes/kube-proxy.yml
+- name: "创建kube-proxy"
+  command: "kubectl apply -f /etc/kubernetes/kube-proxy.yml -n kube-system"

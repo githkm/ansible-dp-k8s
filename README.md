@@ -3,7 +3,7 @@
 > ###### 在控制端机器执行以下命令安装ansible
 ```
 yum -y install python-devel python-pip
-pip install ansible -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install ansible netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 使用ssh互信的方式管理主机

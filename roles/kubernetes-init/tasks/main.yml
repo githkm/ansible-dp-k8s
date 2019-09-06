@@ -1,0 +1,114 @@
+- name: "关闭防火墙"
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+- name: "永久关闭SELINUX"
+  selinux: state=disabled
+- name: "临时关闭SELINUX"
+  shell: "setenforce 0"
+  ignore_errors: yes
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+# kubelet fails even if ansible_swaptotal_mb = 0
+- name: 检查swapp
+  command: /sbin/swapon -s
+  register: swapon
+  changed_when: no
+- name: 禁用swapp
+  command: /sbin/swapoff -a
+  when: swapon.stdout
+- name: "添加阿里云软件源"
+  yum_repository:
+    file: CentOS-Base
+    name: '{{ item.name }}'
+    description: '{{ item.description}}'
+    baseurl: '{{ item.baseurl }}'
+    gpgkey: "{{ gpgkey }}/centos/RPM-GPG-KEY-CentOS-7"
+    failovermethod: priority
+    gpgcheck: yes
+    enabled: yes
+  with_items:
+    - { name: "base",description: "CentOS-$releasever",baseurl: "http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/ \n https://mirrors.aliyun.com/centos/$releasever/os/$basearch/" }
+    - { name: "updates",description: "CentOS-$releasever",baseurl: "http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/ \n https://mirrors.aliyun.com/centos/$releasever/updates/$basearch/" }
+    - { name: "extras",description: "CentOS-$releasever",baseurl: "http://mirrors.cloud.aliyuncs.com/centos/$releasever/extras/$basearch/ \n https://mirrors.aliyun.com/centos/$releasever/extras/$basearch/" }
+  tags: CentOS-Base
+- name: "添加EPEL软件源"
+  yum_repository:
+    file: epel
+    name: epel
+    description: Extra Packages for Enterprise Linux 7 - $basearch
+    baseurl: "http://mirrors.cloud.aliyuncs.com/epel/7/$basearch \n https://mirrors.aliyun.com/epel/7/$basearch"
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7"
+    failovermethod: priority
+    gpgcheck: no
+    enabled: yes
+  tags: epel
+- name: "yum安装必要组件"
+  yum:
+    name: ['socat','fuse','fuse-libs','nfs-utils','pciutils','bash-completion','chrony','wget']
+    update_cache: yes
+    state: installed
+- name: "重启chrony服务"
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: restarted
+- name: "创建数据目录"
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ docker_data_dir }}/docker"
+    - "/etc/kubernetes/manifests"
+    - "/etc/kubernetes/pki"
+    - "/var/log/kubernetes"
+    - "/etc/kubeadm"
+    - "/etc/nginx"
+#- name: 安装docker
+#  include: docker.yml
+- name: "下载kubernetes安装包"
+  get_url:
+    url: '{{ kubernetes_url }}'
+    dest: /opt
+- name: "解压kubernetes安装包"
+  unarchive:
+    src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
+    dest: '/opt'
+- name: "安装kubernetes本地包"
+  shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
+- name: "crictl配置"
+  shell: >
+    cp -rf /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/crictl /usr/bin/crictl &&
+    chmod a+x /usr/bin/crictl
+- name: "设置kubelet服务配置内存大于3.5G"
+  template:
+    src: 10-kubeadm.conf.3.5.j2
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_memtotal_mb >= 3584
+- name: "设置kubelet服务配置内存小于3.5G"
+  template:
+    src: 10-kubeadm.conf.j2
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_memtotal_mb < 3584
+- name: "启动kubelet服务"
+  systemd:
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+    state: restarted
+- name: "配置内核参数"
+  template:
+    src: '{{ item }}.j2'
+    dest: '/etc/sysctl.d/{{ item }}'
+  with_items:
+    - 99-sysctl.conf
+    - 99-k8s.conf
+- name: "生效内核参数"
+  shell: sysctl --system || true
