@@ -47,6 +47,6 @@ nginx_config_dir: /etc/nginx
 #k8s addons
 flannel_enable: true
 flannel_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs/flannel"
-flannel_image_tag: "v0.8.0"
+flannel_image_tag: "v0.9.0"
 coredns_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs/coredns"
 coredns_image_tag: "1.3.1"
