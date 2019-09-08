@@ -67,7 +67,12 @@
 - name: "创建kube-proxy"
   command: "kubectl apply -f /etc/kubernetes/kube-proxy.yml -n kube-system"
   when: inventory_hostname == groups['kube-master'][0]
-- name: "调整apiserver配置"
+- name: "调整1.12.6版本apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml
+  when: kubernetes_version == '1.12.6-aliyun.1'
+- name: "调整所有apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
     sed -i "/- kube-controller-manager/a\ \ \ \ - --experimental-cluster-signing-duration=87600h0m0s" kube-controller-manager.yaml &&
@@ -76,7 +81,7 @@
     sed -i "/- kube-apiserver/a\ \ \ \ - --enable-aggregator-routing=true" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --endpoint-reconciler-type=lease" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --apiserver-count=500" kube-apiserver.yaml &&
-    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
+    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-policy-file=/etc/kubernetes/audit-policy.yml" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-log-path=/var/log/kubernetes/kubernetes.audit\n    - --audit-log-maxage=7" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-log-maxbackup=10\n    - --audit-log-maxsize=100" kube-apiserver.yaml &&

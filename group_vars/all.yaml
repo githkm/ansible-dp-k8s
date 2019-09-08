@@ -16,11 +16,11 @@ etcd_token: c5365b5b-2d99-4060-9d64-bf4143d2a799
 #证书
 ssl_dir: /opt/cert
 #k8s
-kubernetes_version: 1.12.6-aliyun.1
+kubernetes_version: 1.14.6-aliyun.1
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
 kube_certs_time: 3650
 #1.12.6使用这个地址
-kube_image_repo: registry.cn-hangzhou.aliyuncs.com/google_containers
+#kube_image_repo: registry.cn-hangzhou.aliyuncs.com/google_containers
 #1.14.6使用这个地址
 kube_image_repo: registry.cn-hangzhou.aliyuncs.com/acs
 # K8s image pull policy (imagePullPolicy)
@@ -31,7 +31,7 @@ kube_apiserver_ip: "{{ kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('ad
 kube_dns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
 kube_pods_subnet: 10.63.0.0/16
 kube_apiserver_node_port_range: 30000-32767
-kube_version: v1.12.6
+kube_version: v1.14.6
 kube_apiserver_port: 6443
 kubeadm_token: grt2cg.v1uquogbljba98q1
 #负载均衡
