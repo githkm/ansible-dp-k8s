@@ -10,7 +10,7 @@
     - "/etc/kubernetes/addons"
     - "/etc/kubernetes/addons/flannel"
 
-- name: "Flannel | Create cni-flannel-rbac manifest"
+- name: "Flannel | Create flannel manifest"
   template:
     src: kube-flannel-vxlan.yml.j2
     dest: "/etc/kubernetes/addons/flannel/kube-flannel-vxlan.yml"

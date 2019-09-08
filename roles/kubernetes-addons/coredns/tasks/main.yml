@@ -1,0 +1,22 @@
+- name: "CoerDNS | create coredns config dir"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - addons
+  with_items:
+    - "/etc/kubernetes/addons"
+    - "/etc/kubernetes/addons/coredns"
+
+- name: "CoreDNS | Create coredns manifest"
+  template:
+    src: coredns.yml.j2
+    dest: "/etc/kubernetes/addons/coredns/coredns.yml"
+  register: coredns_manifest
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: "CoreDNS | Start Resources"
+  command: "kubectl apply -f /etc/kubernetes/addons/coredns/coredns.yml -n kube-system"
+  when: inventory_hostname == groups['kube-master'][0] and coredns_manifest.changed
