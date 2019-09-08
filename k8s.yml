@@ -1,10 +1,12 @@
 - name: "安装kubernetes"
   hosts: kube-master
   roles:
-    #- { role: 'kubernetes-init', tags: "kubernetes-init" }
+    - { role: 'kubernetes-init', tags: "kubernetes-init" }
     - { role: 'kubernetes-master', tags: "kubernetes-master" }
-#     - { role: 'kubernetes-addons/flannel', tags: 'flannel' }
-#- name: "配置负载均衡"
-#  hosts: keepalived
-#  roles:
-#    - { role: 'kubernetes-keepalived', tags: "kubernetes-keepalived" }
+    - { role: 'kubernetes-addons/flannel', tags: 'flannel' }
+    - { role: 'kubernetes-addons/coredns', tags: 'coredns' }
+    - { role: 'kubernetes-addons/metrics-server', tags: 'metrics-server' }
+- name: "配置负载均衡"
+  hosts: keepalived
+  roles:
+    - { role: 'kubernetes-keepalived', tags: "kubernetes-keepalived" }

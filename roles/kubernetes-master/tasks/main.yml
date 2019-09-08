@@ -1,3 +1,8 @@
+- name: "添加命令自动补全"
+  lineinfile:
+    dest: "/etc/profile"
+    line: "source <(kubectl completion bash)"
+    state: present
 - name: "Master开启审计"
   shell: "cp -rf /opt/pkg/kubernetes/{{ kubernetes_version }}/module/audit-policy.yml /etc/kubernetes/audit-policy.yml"
 - name: "配置nginx代理配置文件"
