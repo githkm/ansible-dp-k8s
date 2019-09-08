@@ -35,6 +35,7 @@ kube_version: v1.12.6
 kube_apiserver_port: 6443
 kubeadm_token: grt2cg.v1uquogbljba98q1
 #负载均衡
+keepalived_enable: true
 loadbalancer_apiserver_ip: 192.168.83.83
 loadbalancer_apiserver_port: 5443
 loadbalancer_apiserver_keepalive_timeout: 5m

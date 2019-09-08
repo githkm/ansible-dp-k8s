@@ -16,7 +16,6 @@
   with_items:
     - swap
     - none
-# kubelet fails even if ansible_swaptotal_mb = 0
 - name: 检查swapp
   command: /sbin/swapon -s
   register: swapon
@@ -71,8 +70,8 @@
     - "/var/log/kubernetes"
     - "/etc/kubeadm"
     - "/etc/nginx"
-#- name: 安装docker
-#  include: docker.yml
+- name: 安装docker
+  include: docker.yml
 - name: "下载kubernetes安装包"
   get_url:
     url: '{{ kubernetes_url }}'
