@@ -70,18 +70,23 @@
 - name: "调整1.12.6版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
-    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml
+    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml
   when: kubernetes_version == '1.12.6-aliyun.1'
+- name: "调整1.12.6版本apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
+  when: kubernetes_version == '1.14.6-aliyun.1'
 - name: "调整所有apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
     sed -i "/- kube-controller-manager/a\ \ \ \ - --experimental-cluster-signing-duration=87600h0m0s" kube-controller-manager.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --profiling=false" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --enable-aggregator-routing=true" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --endpoint-reconciler-type=lease" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --apiserver-count=500" kube-apiserver.yaml &&
-    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-policy-file=/etc/kubernetes/audit-policy.yml" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-log-path=/var/log/kubernetes/kubernetes.audit\n    - --audit-log-maxage=7" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a \    - --audit-log-maxbackup=10\n    - --audit-log-maxsize=100" kube-apiserver.yaml &&
@@ -90,4 +95,7 @@
     sed -i "/  volumeMounts:/a \    - mountPath: /var/log/kubernetes\n      name: k8s-audit" kube-apiserver.yaml &&
     sed -i "/  volumes:/a \  - hostPath:\n      path: /var/log/kubernetes\n      type: DirectoryOrCreate\n    name: k8s-audit" kube-apiserver.yaml &&
     systemctl restart kubelet
-
+- name: "等待apiserver重启"
+  debug:
+    msg: "等待apiserver重启完成"
+  delay: 10
