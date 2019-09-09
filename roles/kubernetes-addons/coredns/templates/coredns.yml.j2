@@ -126,7 +126,7 @@ metadata:
   resourceVersion: "0"
 spec:
   sessionAffinity: ClientIP
-  clusterIP: 10.96.0.10
+  clusterIP: {{ kube_dns_server }}
   ports:
   - name: dns
     port: 53

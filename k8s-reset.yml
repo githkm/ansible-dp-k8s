@@ -1,0 +1,4 @@
+- name: "重置Master节点"
+  hosts: kube-master
+  roles:
+    - { role: 'kubernetes-reset', tags: "kubernetes-reset" }

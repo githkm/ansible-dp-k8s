@@ -1,0 +1,22 @@
+- name: "Nginx Ingress | create nginx-ingress config dir"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - addons
+  with_items:
+    - "/etc/kubernetes/addons"
+    - "/etc/kubernetes/addons/nginx-ingress"
+
+- name: "Nginx Ingress | Create nginx-ingress manifest"
+  template:
+    src: nginx-ingress.yml.j2
+    dest: "/etc/kubernetes/addons/nginx-ingress/nginx-ingress.yml"
+  register: nginx_ingress_manifest
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: "Nginx Ingress | Start Resources"
+  command: "kubectl apply -f /etc/kubernetes/addons/nginx-ingress/nginx-ingress.yml -n {{ ingress_namespace }}"
+  when: inventory_hostname == groups['kube-master'][0] and nginx_ingress_manifest.changed and ingress_enable | default(false)
