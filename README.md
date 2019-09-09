@@ -23,3 +23,10 @@ yum install sshpass -y
 127.0.0.1 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 192.168.1.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 ```
+
+#### 报错1 Please add this host's fingerprint to your known_hosts file to manage this host
+> ##### vim /etc/ansible/ansible.cfg
+```
+[defaults]
+host_key_checking = False
+```
