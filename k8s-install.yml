@@ -10,9 +10,3 @@
   hosts: kube-master
   roles:
     - { role: 'kubernetes-master', tags: "kubernetes-master" }
-- name: "配置部署Addons"
-  hosts: kube-master
-  roles:
-    - { role: 'kubernetes-addons/flannel', tags: 'flannel' }
-    - { role: 'kubernetes-addons/coredns', tags: 'coredns' }
-    - { role: 'kubernetes-addons/metrics-server', tags: 'metrics-server' }
