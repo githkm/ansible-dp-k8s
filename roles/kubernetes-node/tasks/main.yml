@@ -1,0 +1,2 @@
+- name: "节点加入集群"
+  command: "kubeadm join --node-name {{ ansible_default_ipv4.address }} {{ loadbalancer_apiserver_ip }}:{{ loadbalancer_apiserver_port }} --token {{ kubeadm_token }} --discovery-token-unsafe-skip-ca-verification"

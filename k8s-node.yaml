@@ -1,0 +1,8 @@
+- name: "初始化Worker节点"
+  hosts: kube-node
+  roles:
+    - { role: 'kubernetes-init', tags: "kubernetes-init" }
+- name: "加入集群"
+  hosts: kube-node
+  roles:
+    - { role: 'kubernetes-node', tags: "kubernetes-node" }

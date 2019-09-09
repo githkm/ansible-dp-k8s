@@ -1,6 +1,6 @@
 - name: "添加命令自动补全"
   lineinfile:
-    dest: "/etc/profile"
+    dest: "/root/.bashrc"
     line: "source <(kubectl completion bash)"
     state: present
 - name: "Master开启审计"
