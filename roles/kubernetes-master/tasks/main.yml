@@ -95,7 +95,8 @@
     sed -i "/  volumeMounts:/a \    - mountPath: /var/log/kubernetes\n      name: k8s-audit" kube-apiserver.yaml &&
     sed -i "/  volumes:/a \  - hostPath:\n      path: /var/log/kubernetes\n      type: DirectoryOrCreate\n    name: k8s-audit" kube-apiserver.yaml &&
     systemctl restart kubelet
+- pause:
+    minutes: 0.2
 - name: "等待apiserver重启"
   debug:
     msg: "等待apiserver重启完成"
-  delay: 10
