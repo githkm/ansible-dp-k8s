@@ -1,0 +1,52 @@
+- name: "Dashboard | create dashboard config dir"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+  when: inventory_hostname == groups['kube-master'][0]
+  tags:
+    - addons
+  with_items:
+    - "/etc/kubernetes/pki/dashboard"
+    - "/etc/kubernetes/addons"
+    - "/etc/kubernetes/addons/dashboard"
+- name: "Dashboard | Create dashboard crt"
+  shell: >
+    rm -rf /etc/kubernetes/pki/dashboard/* &&
+    cp /etc/kubernetes/pki/apiserver.crt /etc/kubernetes/pki/dashboard/dashboard.crt &&
+    cp /etc/kubernetes/pki/apiserver.key /etc/kubernetes/pki/dashboard/dashboard.key &&
+    cp /etc/kubernetes/pki/ca.crt /etc/kubernetes/pki/dashboard/dashboard-ca.crt
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: "Dashboard | Create dashboard secret"
+  shell: >
+    kubectl create secret generic kubernetes-dashboard-certs --from-file=/etc/kubernetes/pki/dashboard -n kube-system
+  ignore_errors: yes
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: "Dashboard | Create dashboard manifest"
+  template:
+    src: "{{ item }}.yml.j2"
+    dest: "/etc/kubernetes/addons/dashboard/{{ item }}.yml"
+  with_items:
+    - dashboard
+    - dashboard-admin.rbac
+  register: dashboard_manifest
+  when: inventory_hostname == groups['kube-master'][0]
+
+- name: "Dashboard | Start Resources"
+  shell: >
+     kubectl apply -f /etc/kubernetes/addons/dashboard/dashboard.yml -n kube-system &&
+     kubectl apply -f /etc/kubernetes/addons/dashboard/dashboard-admin.rbac.yml -n kube-system
+  when: inventory_hostname == groups['kube-master'][0] and dashboard_manifest.changed and dashboard_enable | default(true)
+
+- name: "Dashboard | Get Token"
+  shell: >
+     kubectl get secret/$(kubectl -n kube-system get secret | grep kubernetes-dashboard-admin | awk '{print $1}')  -o jsonpath={.data.token} -n kube-system  |base64 -d
+  register: dashboard_token
+  when: inventory_hostname == groups['kube-master'][0] and dashboard_enable | default(true)
+
+- name: "Dashboard | Print Token"
+  debug:
+    msg: "Dashboard Token is: {{ dashboard_token.stdout }}"
+  when: inventory_hostname == groups['kube-master'][0] and dashboard_enable | default(true)

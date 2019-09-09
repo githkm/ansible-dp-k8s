@@ -20,9 +20,9 @@ kubernetes_version: 1.14.6-aliyun.1
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
 kube_certs_time: 3650
 #1.12.6使用这个地址
-#kube_image_repo: registry.cn-hangzhou.aliyuncs.com/google_containers
+#kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
 #1.14.6使用这个地址
-kube_image_repo: registry.cn-hangzhou.aliyuncs.com/acs
+kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs"
 # K8s image pull policy (imagePullPolicy)
 k8s_image_pull_policy: IfNotPresent
 kube_dns_domain: "cluster.local"
@@ -52,12 +52,18 @@ flannel_image_tag: "v0.9.0"
 coredns_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs/coredns"
 coredns_image_tag: "1.3.1"
 metrics_server_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server-amd64"
-metrics_server_tag: "v0.3.4"
+metrics_server_tag: "v0.3.1"
 metrics_server_nanny_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/addon-resizer"
 metrics_server_nanny_tag: "1.8.3"
 ingress_enable: true
 ingress_run_master_enable: true
 ingress_namespace: kube-system
 ingress_class: nginx
-ingress_image_repo: registry.cn-hangzhou.aliyuncs.com/google_containers/nginx-ingress-controller
+ingress_image_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/nginx-ingress-controller"
 ingress_image_tag: 0.24.1
+dashboard_enable: true
+dashboard_run_master_enable: true
+dashboard_image_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/kubernetes-dashboard-amd64"
+dashboard_image_tag: "v1.10.1"
+heapster_run_master_enable: true
+heapster_enable_grafana: false

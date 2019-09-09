@@ -5,3 +5,5 @@
     - { role: 'kubernetes-addons/coredns', tags: 'coredns' }
     - { role: 'kubernetes-addons/metrics-server', tags: 'metrics-server' }
     - { role: 'kubernetes-addons/nginx-ingress', tags: 'nginx-ingress' }
+    - { role: 'kubernetes-addons/dashboard', tags: 'dashboard' }
+    - { role: 'kubernetes-addons/heapster', tags: 'heapster' }
