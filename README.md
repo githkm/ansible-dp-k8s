@@ -177,9 +177,3 @@ NAME            STATUS   ROLES    AGE   VERSION
 192.168.96.22   Ready    <none>   59m   v1.14.6-aliyun.1
 192.168.96.137   Ready    <none>   58m   v1.14.6-aliyun.1
 ```
-
-
-
-
-
-
