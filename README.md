@@ -1,6 +1,5 @@
-###
-1、安装基础环境（准备好至少三台主机作为master，如果添加node节点再增加..）
-###
+### 1、安装基础环境（准备好至少三台主机作为master，如果添加node节点再增加..）
+
 ```
 yum install git vim -y
 git clone https://git.boleme.net/ops-group/ansible.git
