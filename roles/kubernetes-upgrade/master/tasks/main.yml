@@ -24,7 +24,7 @@
 - name: "备份配置文件"
   shell: >
     cp -rf /etc/kubeadm/kubeadm.cfg /etc/kubeadm/kubeadm.cfg.{{ backup_time.stdout }} &&
-    cp -rf /etc/kubernetes /etc/kubernete.{{ backup_time.stdout }} &&
+    cp -rf /etc/kubernetes /etc/kubernetes.{{ backup_time.stdout }} &&
     cp -rf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.{{ backup_time.stdout }}
 - name: "卸载老版本kubeadm kubectl"
   shell: yum erase -y kubeadm kubectl
