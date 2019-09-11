@@ -19,7 +19,7 @@ yum install sshpass -y #安装sshpass组件
 修改和替换ansible/inventory文件夹下面的host文件，包括ip地址，用户名，密码，端口详细如下：
 ```
 [etcd]
-192.168.96.19  NODE_NAME=192.168.96.19-name-1
+192.168.96.19 NODE_NAME=192.168.96.19-name-1
 192.168.96.18 NODE_NAME=192.168.96.18-name-2
 192.168.96.20 NODE_NAME=192.168.96.20-name-3
 
@@ -30,7 +30,7 @@ ansible_ssh_pass=Zt81726354.
 
 [keepalived]
 192.168.96.19   type=MASTER priority=100
-192.168.96.18    type=BACKUP priority=99
+192.168.96.18   type=BACKUP priority=99
 192.168.96.20   type=BACKUP priority=98
 
 [keepalived:vars]
@@ -39,17 +39,17 @@ ansible_ssh_user=root
 ansible_ssh_pass=Zt81726354.
 
 [kube-master]
-192.168.96.19
-192.168.96.18
-192.168.96.20
+192.168.96.19 NODE_NAME=192.168.96.19
+192.168.96.18 NODE_NAME=192.168.96.18
+192.168.96.20 NODE_NAME=192.168.96.20
 
 [kube-master:vars]
 ansible_ssh_user=root
 ansible_ssh_pass=Zt81726354.
 
 [kube-node]
-192.168.96.22 
-192.168.96.23
+192.168.96.22 NODE_NAME=192.168.96.22
+192.168.96.23 NODE_NAME=192.168.96.23
 
 [kube-node:vars]
 ansible_ssh_user=root
@@ -61,7 +61,7 @@ ansible_ssh_pass=Zt81726354.
 ```
 [kube-node]
 127.0.0.1 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
-192.168.1.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
+192.168.1.137 NODE_NAME=192.168.1.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 ```
 ##### 3、vim /etc/ansible/ansible.cfg (创建文件前先“mkdir -p /etc/ansible”)
 ```
@@ -132,9 +132,9 @@ nginx-proxy-192.168.96.20                   1/1     Running   0          57m
 （1）首先请确认inventory/hosts文件中node节点中有已经安装好的节点主机ip，如果有请注释，然后在添加新的node节点ip地址和用户密码，如下。
 
 [kube-node]
-#192.168.96.22
-#192.168.96.23
-192.168.96.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
+#192.168.96.22 NODE_NAME=192.168.96.22
+#192.168.96.23 NODE_NAME=192.168.96.23
+192.168.96.137 NODE_NAME=192.168.96.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 
 （2）、复制master集群token值粘贴至group_vars/all.yaml文件中的kubeadm_token 。
 kubeadm token list
@@ -158,5 +158,5 @@ NAME            STATUS   ROLES    AGE   VERSION
 192.168.96.19   Ready    master   71m   v1.14.6-aliyun.1
 192.168.96.20   Ready    master   71m   v1.14.6-aliyun.1
 192.168.96.22   Ready    <none>   59m   v1.14.6-aliyun.1
-192.168.96.137   Ready    <none>   58m   v1.14.6-aliyun.1
+192.168.96.137  Ready    <none>   58m   v1.14.6-aliyun.1
 ```
