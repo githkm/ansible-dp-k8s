@@ -40,7 +40,7 @@
 #      false
 #      {%- endif %}
 - name: "封锁节点"
-  command: "kubectl cordon {{ inventory_hostname }}"
+  command: "kubectl cordon {{ NODE_NAME }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
 
 - name: "驱逐节点上容器组"
@@ -48,7 +48,7 @@
     kubectl drain
     --force
     --ignore-daemonsets
-    --delete-local-data {{ inventory_hostname }}
+    --delete-local-data {{ NODE_NAME }}
   delegate_to: "{{ groups['kube-master'][0] }}"
   when:
     - drain_nodes

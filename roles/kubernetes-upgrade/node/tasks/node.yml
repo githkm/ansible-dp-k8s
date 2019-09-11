@@ -36,5 +36,5 @@
     state: restarted
 
 - name: "取消封锁节点"
-  command: "kubectl uncordon {{ inventory_hostname }}"
+  command: "kubectl uncordon {{ NODE_NAME }}"
   delegate_to: "{{ groups['kube-master'][0] }}"
