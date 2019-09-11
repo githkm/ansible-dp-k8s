@@ -18,14 +18,22 @@
   unarchive:
     src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
     dest: '/opt'
+- name: "注册备份时间"
+  command: date +"%Y%m%d%H%M%S"
+  register: backup_time
+- name: "备份配置文件"
+  shell: >
+    cp -rf /etc/kubeadm/kubeadm.cfg /etc/kubeadm/kubeadm.cfg.{{ backup_time.stdout }} &&
+    cp -rf /etc/kubernetes /etc/kubernete.{{ backup_time.stdout }} &&
+    cp -rf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.{{ backup_time.stdout }}
 - name: "卸载老版本kubeadm kubectl"
   shell: yum erase -y kubeadm kubectl
 - name: "安装kubernetes kubeadm-{{ kubernetes_version }}和kubectl-{{ kubernetes_version }}包"
   shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/ | grep -E "kubeadm|kubectl" | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
-- name: "备份master"
+- name: "恢复10-kubeadm.conf配置"
   shell: >
-    cp -rf /etc/kubeadm/kubeadm.cfg /etc/kubeadm/kubeadm.cfg.`date "+%Y%m%d%H%M%S"` &&
-    cp -rf /etc/kubernetes /etc/kubernetes.`date "+%Y%m%d%H%M%S"`
+    rm -rf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf &&
+    cp -rf /etc/systemd/system/kubelet.service.d/10-kubeadm.conf.{{ backup_time.stdout }} /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 - name: "创建kubeadm配置"
   template:
     src: "kubeadm.{{ kubernetes_version }}.cfg.j2"
@@ -47,8 +55,10 @@
     enabled: yes
     state: restarted
   when: inventory_hostname == groups['kube-master'][0]
-- name: "等待apiserver重启"
-  pause: seconds=15
+- name: "等待apiserver重启完成"
+  wait_for:
+    port: "{{ kube_apiserver_port }}"
+    delay: 10
 - name: "kubeadm upgrade升级集群其他Master"
   shell: "kubeadm upgrade node experimental-control-plane"
   when: inventory_hostname != groups['kube-master'][0]
@@ -59,8 +69,6 @@
     enabled: yes
     state: restarted
   when: inventory_hostname != groups['kube-master'][0]
-- name: "等待apiserver重启"
-  pause: seconds=10
 - name: "调整1.12.6版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
@@ -89,8 +97,7 @@
     sed -i "/  volumeMounts:/a \    - mountPath: /var/log/kubernetes\n      name: k8s-audit" kube-apiserver.yaml &&
     sed -i "/  volumes:/a \  - hostPath:\n      path: /var/log/kubernetes\n      type: DirectoryOrCreate\n    name: k8s-audit" kube-apiserver.yaml &&
     systemctl restart kubelet
-- name: "等待apiserver重启"
-  pause: seconds=10
 - name: "等待apiserver重启完成"
-  debug:
-    msg: "等待apiserver重启完成"
+  wait_for:
+    port: "{{ kube_apiserver_port }}"
+    delay: 10

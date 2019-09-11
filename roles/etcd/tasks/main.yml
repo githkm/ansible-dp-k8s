@@ -106,3 +106,8 @@
     name: etcd
     enabled: yes
     state: started
+- name: "等待etcd启动完成"
+  wait_for:
+    port: "2379"
+    host: "{{ ansible_default_ipv4.address }}"
+    delay: 10
