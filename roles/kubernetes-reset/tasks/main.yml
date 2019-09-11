@@ -2,13 +2,25 @@
   command: kubeadm reset --force
   ignore_errors: true
 
+- name: "stop kubelet  service"
+  service:
+    name: kubelet
+    state: stopped
+    enabled: no
+  ignore_errors: true
+
+- name: "delete all container"
+  shell: >
+    docker kill $(docker ps -a -q) &&
+    docker rm $(docker ps -a -q)
+  ignore_errors: true
+
 - name: reset | stop and disable services
   service:
     name: "{{ item }}"
     state: stopped
     enabled: no
   with_items:
-    - kubelet
     - etcd
     - docker
   ignore_errors: true
@@ -38,14 +50,8 @@
 
 - name: reset | uninstall package
   yum:
-    name: "{{ item }}"
+    name: ['kubeadm', 'kubectl', 'kubelet', 'kubernetes-cni', 'docker-ce']
     state: absent
-  with_items:
-    - kubeadm
-    - kubectl
-    - kubelet
-    - kubernetes-cni
-    - docker-ce
 
 - name: reset | systemctl daemon-reload
   command: systemctl daemon-reload

@@ -1,0 +1,40 @@
+- name: "下载kubernetes安装包"
+  get_url:
+    url: '{{ kubernetes_url }}'
+    dest: /opt
+
+- name: "解压kubernetes安装包"
+  unarchive:
+    src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
+    dest: '/opt'
+
+- name: "升级crictl"
+  shell: >
+    rm -rf /usr/bin/crictl &&
+    cp -rf /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/crictl /usr/bin/crictl &&
+    chmod a+x /usr/bin/crictl
+- name: "升级kubernetes-cni kubelet-{{ kubernetes_version }}包"
+  shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/ | grep -E "kubernetes-cni|kubelet" | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
+
+- name: "设置kubelet服务配置内存大于3.5G"
+  template:
+    src: 10-kubeadm.conf.3.5.j2
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_memtotal_mb >= 3584 
+
+- name: "设置kubelet服务配置内存小于3.5G"
+  template:
+    src: 10-kubeadm.conf.j2
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_memtotal_mb < 3584
+
+- name: "重启kubelet服务"
+  systemd:
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+    state: restarted
+
+- name: "取消封锁节点"
+  command: "kubectl uncordon {{ inventory_hostname }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"

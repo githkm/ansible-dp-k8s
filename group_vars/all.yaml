@@ -16,6 +16,7 @@ etcd_token: c5365b5b-2d99-4060-9d64-bf4143d2a799
 #证书
 ssl_dir: /opt/cert
 #k8s
+#kubernetes_version: 1.12.6-aliyun.1
 kubernetes_version: 1.14.6-aliyun.1
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
 kube_certs_time: 3650
@@ -31,12 +32,15 @@ kube_apiserver_ip: "{{ kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('ad
 kube_dns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
 kube_pods_subnet: 10.63.0.0/16
 kube_apiserver_node_port_range: 30000-32767
-#kube_version: v1.12.6
+#kube_version: v1.12.6-aliyun.1
 kube_version: v1.14.6-aliyun.1
 kube_apiserver_port: 6443
 kubeadm_token: 754haj.745u27xx4rlx8bib  #新加节点时记得更新此token
+#升级时是否驱逐节点上的容器组
+drain_nodes: false
+need_check_kubelet_version: false
 #负载均衡
-keepalived_enable: true
+keepalived_enable: false
 loadbalancer_apiserver_ip: 192.168.83.83
 loadbalancer_apiserver_port: 5443
 loadbalancer_apiserver_keepalive_timeout: 5m

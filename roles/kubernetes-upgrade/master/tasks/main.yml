@@ -1,0 +1,96 @@
+- name: "检查服务端版本"
+  command: "kubectl version --client=false --short | grep Server"
+  register: server_version
+- name: "判断版本是否需要升级"
+  assert:
+    that: "server_version.stdout.split(' ')[-1] is version('v{{ kubernetes_version }}', '<')"
+    fail_msg: "节点无需升级，候选升级版本：'v{{ kubernetes_version }}'，当前服务端版本：{{ server_version.stdout.split(' ')[-1] }} "
+    success_msg: "节点需要升级，候选升级版本：'v{{ kubernetes_version }}'，当前服务端版本：{{ server_version.stdout.split(' ')[-1] }}"
+- name: "下载pause镜像"
+  shell: >
+    docker pull {{ kube_image_repo }}/pause:3.1 &&
+    docker tag {{ kube_image_repo }}/pause:3.1 k8s.gcr.io/pause:3.1
+- name: "下载kubernetes安装包"
+  get_url:
+    url: '{{ kubernetes_url }}'
+    dest: /opt
+- name: "解压kubernetes安装包"
+  unarchive:
+    src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
+    dest: '/opt'
+- name: "卸载老版本kubeadm kubectl"
+  shell: yum erase -y kubeadm kubectl
+- name: "安装kubernetes kubeadm-{{ kubernetes_version }}和kubectl-{{ kubernetes_version }}包"
+  shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/ | grep -E "kubeadm|kubectl" | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
+- name: "备份master"
+  shell: >
+    cp -rf /etc/kubeadm/kubeadm.cfg /etc/kubeadm/kubeadm.cfg.`date "+%Y%m%d%H%M%S"` &&
+    cp -rf /etc/kubernetes /etc/kubernetes.`date "+%Y%m%d%H%M%S"`
+- name: "创建kubeadm配置"
+  template:
+    src: "kubeadm.{{ kubernetes_version }}.cfg.j2"
+    dest: /etc/kubeadm/kubeadm.cfg
+- name: "Master镜像下载"
+  shell: "kubeadm config images pull --config /etc/kubeadm/kubeadm.cfg"
+- name: "kubeadm upgrade升级集群第一台Master"
+  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force"
+  when: inventory_hostname == groups['kube-master'][0]
+- name: "升级kube-proxy"
+  shell: >
+    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:{{ kube_version }} -n kube-system &&
+    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:{{ kube_version }} -n kube-system
+  when: inventory_hostname == groups['kube-master'][0]
+- name: "重启kubelet服务"
+  systemd:
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+    state: restarted
+  when: inventory_hostname == groups['kube-master'][0]
+- name: "等待apiserver重启"
+  pause: seconds=15
+- name: "kubeadm upgrade升级集群其他Master"
+  shell: "kubeadm upgrade node experimental-control-plane"
+  when: inventory_hostname != groups['kube-master'][0]
+- name: "重启kubelet服务"
+  systemd:
+    daemon_reload: yes
+    name: kubelet
+    enabled: yes
+    state: restarted
+  when: inventory_hostname != groups['kube-master'][0]
+- name: "等待apiserver重启"
+  pause: seconds=10
+- name: "调整1.12.6版本apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml
+  when: kubernetes_version == '1.12.6-aliyun.1'
+- name: "调整1.14.6版本apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
+  when: kubernetes_version == '1.14.6-aliyun.1'
+- name: "调整所有apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "/- kube-controller-manager/a\ \ \ \ - --experimental-cluster-signing-duration=87600h0m0s" kube-controller-manager.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --profiling=false" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --enable-aggregator-routing=true" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --endpoint-reconciler-type=lease" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a \    - --apiserver-count=500" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a \    - --audit-policy-file=/etc/kubernetes/audit-policy.yml" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a \    - --audit-log-path=/var/log/kubernetes/kubernetes.audit\n    - --audit-log-maxage=7" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a \    - --audit-log-maxbackup=10\n    - --audit-log-maxsize=100" kube-apiserver.yaml &&
+    sed -i "/  volumeMounts:/a \    - mountPath: /etc/kubernetes/audit-policy.yml\n      name: audit-policy\n      readOnly: true" kube-apiserver.yaml &&
+    sed -i "/  volumes:/a \  - hostPath:\n      path: /etc/kubernetes/audit-policy.yml\n      type: FileOrCreate\n    name: audit-policy" kube-apiserver.yaml &&
+    sed -i "/  volumeMounts:/a \    - mountPath: /var/log/kubernetes\n      name: k8s-audit" kube-apiserver.yaml &&
+    sed -i "/  volumes:/a \  - hostPath:\n      path: /var/log/kubernetes\n      type: DirectoryOrCreate\n    name: k8s-audit" kube-apiserver.yaml &&
+    systemctl restart kubelet
+- name: "等待apiserver重启"
+  pause: seconds=10
+- name: "等待apiserver重启完成"
+  debug:
+    msg: "等待apiserver重启完成"

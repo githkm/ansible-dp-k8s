@@ -52,6 +52,8 @@
   template:
     src: "kubeadm.{{ kubernetes_version }}.cfg.j2"
     dest: /etc/kubeadm/kubeadm.cfg
+- name: "Master镜像下载"
+  shell: "kubeadm config images pull --config /etc/kubeadm/kubeadm.cfg"
 - name: "初始化集群Init"
   shell: 'kubeadm init --config /etc/kubeadm/kubeadm.cfg'
 - name: "拷贝admin.conf配置"
@@ -73,7 +75,7 @@
     sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml
   when: kubernetes_version == '1.12.6-aliyun.1'
-- name: "调整1.12.6版本apiserver配置"
+- name: "调整1.14.6版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
     sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&

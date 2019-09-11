@@ -1,0 +1,56 @@
+- name: "检查kubelet版本"
+  command: "kubelet --version"
+  register: kubelet_version
+
+- name: "判断节点是否需要升级"
+  assert:
+    that: "kubelet_version.stdout.split(' ')[-1] is version('v{{ kubernetes_version }}', '<') or need_check_kubelet_version == false"
+    fail_msg: "节点无需升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }} "
+    success_msg: "节点需要升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }}"
+
+#- name: "判断节点是否ready"
+#  shell: >-
+#     "kubectl get node {{ inventory_hostname }} -o jsonpath=\"{ range .status.conditions[?(@.type == 'Ready')].status }\"{ @ }{ end }"
+#  register: kubectl_node_ready
+#  delegate_to: "{{ groups['kube-master'][0] }}"
+#  failed_when: false
+#  changed_when: false
+#
+## SchedulingDisabled: unschedulable = true
+## else unschedulable key doesn't exist
+#- name: "判断节点是否可调度"
+#  shell: >-
+#     'kubectl get node {{ inventory_hostname }} -o jsonpath="{ .spec.unschedulable }"'
+#  register: kubectl_node_schedulable
+#  delegate_to: "{{ groups['kube-master'][0] }}"
+#  failed_when: false
+#  changed_when: false
+#
+#- debug:
+#    msg: '{{ kubectl_node_schedulable }}'
+#
+#- debug:
+#    msg: '{{ kubectl_node_ready.stdout }}'
+#- name: "判断节点是否需要封锁"
+#  set_fact:
+#    needs_cordoning: >-
+#      {% if kubectl_node_ready.stdout == "True" and not kubectl_node_schedulable.stdout -%}
+#      true
+#      {%- else -%}
+#      false
+#      {%- endif %}
+- name: "封锁节点"
+  command: "kubectl cordon {{ inventory_hostname }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
+
+- name: "驱逐节点上容器组"
+  command: >-
+    kubectl drain
+    --force
+    --ignore-daemonsets
+    --delete-local-data {{ inventory_hostname }}
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+    - drain_nodes
+
+- include: node.yml
