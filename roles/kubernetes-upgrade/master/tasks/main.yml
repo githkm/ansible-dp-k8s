@@ -44,7 +44,7 @@
     src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
     dest: '/opt'
 - name: "注册备份时间"
-  command: date +"%Y%m%d%H%M%S"
+  command: date +"%Y-%m-%d-%H-%M-%S"
   register: backup_time
 - name: "备份配置文件"
   shell: >
