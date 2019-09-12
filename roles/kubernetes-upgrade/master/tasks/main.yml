@@ -6,6 +6,31 @@
     that: "server_version.stdout.split(' ')[-1] is version('v{{ kubernetes_version }}', '<')"
     fail_msg: "节点无需升级，候选升级版本：'v{{ kubernetes_version }}'，当前服务端版本：{{ server_version.stdout.split(' ')[-1] }} "
     success_msg: "节点需要升级，候选升级版本：'v{{ kubernetes_version }}'，当前服务端版本：{{ server_version.stdout.split(' ')[-1] }}"
+- name: "获取集群domain设置"
+  shell: "kubectl get cm/kubeadm-config -n kube-system -o jsonpath='{.data}' | grep dnsDomain"
+  register: domain_info
+- name: "获取集群容器网段设置"
+  shell: "kubectl get cm/kubeadm-config -n kube-system -o jsonpath='{.data}' | grep podSubnet"
+  register: pod_subnet_info
+- name: "获取集群服务设置"
+  shell: "kubectl get cm/kubeadm-config -n kube-system -o jsonpath='{.data}' | grep serviceSubnet"
+  register: service_subnet_info
+- name: "获取集群服务端口段"
+  shell: "kubectl get cm/kubeadm-config -n kube-system -o jsonpath='{.data}' | grep service-node-port-range"
+  register: node_port_range_info
+- name: "判断信息获取是否成功"
+  assert:
+    that: "domain_info.stdout.split(' ')[-1] != '' and pod_subnet_info.stdout.split(' ')[-1] != '' and service_subnet_info.stdout.split(' ')[-1] != '' and node_port_range_info.stdout.split(' ')[-1] != ''"
+    fail_msg: "集群信息获取失败，停止升级"
+    success_msg: "集群信息获取成功，domain: {{ domain_info.stdout.split(' ')[-1] }}, 容器组网段：{{ pod_subnet_info.stdout.split(' ')[-1] }}， 服务网段：{{ service_subnet_info.stdout.split(' ')[-1] }}，服务端口段：{{ node_port_range_info.stdout.split(' ')[-1] }}"
+- name: "设置集群信息常量"
+  set_fact:
+    kube_dns_domain: "{{ domain_info.stdout.split(' ')[-1] }}"
+    kube_pods_subnet: "{{ pod_subnet_info.stdout.split(' ')[-1] }}"
+    kube_service_addresses: "{{ service_subnet_info.stdout.split(' ')[-1] }}"
+    kube_apiserver_ip: "{{ service_subnet_info.stdout.split(' ')[-1]|ipaddr('net')|ipaddr(1)|ipaddr('address') }}"
+    kube_dns_server: "{{ service_subnet_info.stdout.split(' ')[-1]|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
+    kube_apiserver_node_port_range: "{{ node_port_range_info.stdout.split(' ')[-1] }}"
 - name: "下载pause镜像"
   shell: >
     docker pull {{ kube_image_repo }}/pause:3.1 &&
@@ -40,64 +65,9 @@
     dest: /etc/kubeadm/kubeadm.cfg
 - name: "Master镜像下载"
   shell: "kubeadm config images pull --config /etc/kubeadm/kubeadm.cfg"
-- name: "kubeadm upgrade升级集群第一台Master"
-  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force"
-  when: inventory_hostname == groups['kube-master'][0]
-- name: "升级kube-proxy"
-  shell: >
-    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:{{ kube_version }} -n kube-system &&
-    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:{{ kube_version }} -n kube-system
-  when: inventory_hostname == groups['kube-master'][0]
-- name: "重启kubelet服务"
-  systemd:
-    daemon_reload: yes
-    name: kubelet
-    enabled: yes
-    state: restarted
-  when: inventory_hostname == groups['kube-master'][0]
-- name: "等待apiserver重启完成"
-  wait_for:
-    port: "{{ kube_apiserver_port }}"
-    delay: 10
-- name: "kubeadm upgrade升级集群其他Master"
-  shell: "kubeadm upgrade node experimental-control-plane"
-  when: inventory_hostname != groups['kube-master'][0]
-- name: "重启kubelet服务"
-  systemd:
-    daemon_reload: yes
-    name: kubelet
-    enabled: yes
-    state: restarted
-  when: inventory_hostname != groups['kube-master'][0]
-- name: "调整1.12.6版本apiserver配置"
-  shell: >
-    cd /etc/kubernetes/manifests &&
-    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml
-  when: kubernetes_version == '1.12.6-aliyun.1'
-- name: "调整1.14.6版本apiserver配置"
-  shell: >
-    cd /etc/kubernetes/manifests &&
-    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
-  when: kubernetes_version == '1.14.6-aliyun.1'
-- name: "调整所有apiserver配置"
-  shell: >
-    cd /etc/kubernetes/manifests &&
-    sed -i "/- kube-controller-manager/a\ \ \ \ - --experimental-cluster-signing-duration=87600h0m0s" kube-controller-manager.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --profiling=false" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --enable-aggregator-routing=true" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a\ \ \ \ - --endpoint-reconciler-type=lease" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a \    - --apiserver-count=500" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a \    - --audit-policy-file=/etc/kubernetes/audit-policy.yml" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a \    - --audit-log-path=/var/log/kubernetes/kubernetes.audit\n    - --audit-log-maxage=7" kube-apiserver.yaml &&
-    sed -i "/- kube-apiserver/a \    - --audit-log-maxbackup=10\n    - --audit-log-maxsize=100" kube-apiserver.yaml &&
-    sed -i "/  volumeMounts:/a \    - mountPath: /etc/kubernetes/audit-policy.yml\n      name: audit-policy\n      readOnly: true" kube-apiserver.yaml &&
-    sed -i "/  volumes:/a \  - hostPath:\n      path: /etc/kubernetes/audit-policy.yml\n      type: FileOrCreate\n    name: audit-policy" kube-apiserver.yaml &&
-    sed -i "/  volumeMounts:/a \    - mountPath: /var/log/kubernetes\n      name: k8s-audit" kube-apiserver.yaml &&
-    sed -i "/  volumes:/a \  - hostPath:\n      path: /var/log/kubernetes\n      type: DirectoryOrCreate\n    name: k8s-audit" kube-apiserver.yaml &&
-    systemctl restart kubelet
-- name: "等待apiserver重启完成"
-  wait_for:
-    port: "{{ kube_apiserver_port }}"
-    delay: 10
+- name: "测试升级尝试"
+  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force --dry-run"
+  ignore_errors: yes 
+  register: test_upgrade
+- include: master.yml
+  when: test_upgrade.stdout.find("successfully") >= 1
