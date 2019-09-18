@@ -1,3 +1,6 @@
+- name: "设置时区"
+  timezone:
+    name: Asia/Shanghai
 - name: "关闭防火墙"
   systemd:
     name: firewalld
