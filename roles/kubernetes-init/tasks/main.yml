@@ -84,12 +84,12 @@
   unarchive:
     src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
     dest: '/opt'
-- name: "安装kubernetes本地包"
-  shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
 - name: "crictl配置"
   shell: >
     cp -rf /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/crictl /usr/bin/crictl &&
     chmod a+x /usr/bin/crictl
+- name: "安装kubernetes本地包"
+  shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
 - name: "清理软件安装kubelet服务"
   file:
     path: "{{ item }}"
@@ -102,18 +102,19 @@
     src: kubelet.service.j2
     dest: /etc/systemd/system/kubelet.service
     mode: 0755
-- name: "设置kubelet服务配置内存大于3.5G"
-  template:
-    src: 10-kubeadm.conf.3.5.j2
-    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-    mode: 0755
-  when: ansible_memtotal_mb >= 3584
-- name: "设置kubelet服务配置内存小于3.5G"
+- name: "配置10-kubeadm.conf"
   template:
     src: 10-kubeadm.conf.j2
     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     mode: 0755
-  when: ansible_memtotal_mb < 3584
+- name: "设置kubelet服务配置内存大于3.5G"
+  shell: >
+    sed -i -e "s/--cgroup-driver=/--system-reserved=memory=300Mi --kube-reserved=memory=400Mi --eviction-hard=imagefs.available<15%,memory.available<300Mi,nodefs.available<10%,nodefs.inodesFree<5% --cgroup-driver=/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+  when: ansible_memtotal_mb > 3584
+- name: "设置allow-privileged配置"
+  shell: >
+    sed -i -e "s/--pod-manifest-path=/--allow-privileged=true --pod-manifest-path=/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf 
+  when: "'v1.15.0' is version('v{{ kubernetes_version }}', '>')"
 - name: "启动kubelet服务"
   systemd:
     daemon_reload: yes
