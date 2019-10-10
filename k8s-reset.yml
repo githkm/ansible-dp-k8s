@@ -1,8 +1,8 @@
-- name: "重置Master节点"
-  hosts: kube-master
-  roles:
-    - { role: 'kubernetes-reset', tags: "kubernetes-reset" }
-#- name: "重置Node节点"
-#  hosts: kube-node
+#- name: "重置Master节点"
+#  hosts: kube-master
 #  roles:
 #    - { role: 'kubernetes-reset', tags: "kubernetes-reset" }
+- name: "重置Node节点"
+  hosts: kube-node
+  roles:
+    - { role: 'kubernetes-reset', tags: "kubernetes-reset" }
