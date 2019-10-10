@@ -1,12 +1,12 @@
-#- name: "签发证书"
-#  hosts: localhost
-#  connection: local
-#  roles:
-#    - { role: 'etcd-cert', tags: "etcd-cert" }
-#- name: "分发证书安装服务"
-#  hosts: etcd
-#  roles:
-#    - { role: 'etcd', tags: "install_etcd" }
+- name: "签发证书"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: 'etcd-cert', tags: "etcd-cert" }
+- name: "分发证书安装服务"
+  hosts: etcd
+  roles:
+    - { role: 'etcd', tags: "install_etcd" }
 - name: "初始化Master节点"
   hosts: kube-master
   roles:

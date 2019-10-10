@@ -16,6 +16,20 @@
 - name: "升级kubernetes-cni kubelet-{{ kubernetes_version }}包"
   shell: 'yum localinstall -y $(ls /opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/ | grep -E "kubernetes-cni|kubelet" | xargs -I "{}" echo -n "/opt/pkg/kubernetes/{{ kubernetes_version }}/rpm/{} ")'
 
+- name: "清理软件安装kubelet服务"
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/usr/lib/systemd/system/kubelet.service"
+    - "/usr/lib/systemd/system/kubelet.service.d"
+
+- name: "配置系统管理员安装kubelet服务"
+  template:
+    src: kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+    mode: 0755
+
 - name: "配置10-kubeadm.conf"
   template:
     src: 10-kubeadm.conf.j2

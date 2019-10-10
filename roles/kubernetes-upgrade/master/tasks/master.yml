@@ -3,8 +3,8 @@
   when: inventory_hostname == groups['kube-master'][0]
 - name: "升级kube-proxy"
   shell: >
-    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:{{ kubernetes_version }} -n kube-system &&
-    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:{{ kubernetes_version }} -n kube-system
+    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system &&
+    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system
   when: inventory_hostname == groups['kube-master'][0]
 - name: "重启kubelet服务"
   systemd:
