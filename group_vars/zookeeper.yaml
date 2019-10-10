@@ -1,0 +1,6 @@
+java_version: 8u171-linux-x64
+java_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/jdk/jdk-{{ java_version  }}.tar.gz"
+zookeeper_version: v3.3.8
+zookeeper_dir: "/opt/zookeeper-{{ zookeeper_version  }}"
+zookeeper_data_dir: /var/lib/zookeeper
+zookeeper_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/zookeeper/zookeeper-{{ zookeeper_version  }}.tar.gz"

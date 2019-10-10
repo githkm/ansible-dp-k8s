@@ -33,7 +33,7 @@ kube_dns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(10)|ipaddr('add
 kube_pods_subnet: 10.65.0.0/16
 kube_apiserver_node_port_range: 30000-32767
 #kube_version: v1.12.6-aliyun.1
-kube_version: v1.14.6-aliyun.1
+#kube_version: v1.14.6-aliyun.1
 kube_apiserver_port: 6443
 kubeadm_token: fpn5l0.mfegiopmlnlsk6bb  #新加节点时记得更新此token
 #升级时是否驱逐节点上的容器组

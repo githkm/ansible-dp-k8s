@@ -105,7 +105,7 @@ spec:
         - --kubeconfig=/var/lib/kube-proxy/kubeconfig.conf
         - --cluster-cidr={{kube_pods_subnet}}
         - --hostname-override=$(NODE_NAME)
-        image: {{ kube_image_repo }}/kube-proxy:{{ kube_version }}
+        image: {{ kube_image_repo }}/kube-proxy:{{ kubernetes_version }}
         imagePullPolicy: IfNotPresent
         name: kube-proxy-worker
         resources: {}
@@ -214,7 +214,7 @@ spec:
         - --kubeconfig=/var/lib/kube-proxy/kubeconfig.conf
         - --cluster-cidr={{kube_pods_subnet}}
         - --hostname-override=$(NODE_NAME)
-        image: {{ kube_image_repo }}/kube-proxy:{{ kube_version }}
+        image: {{ kube_image_repo }}/kube-proxy:{{ kubernetes_version }}
         imagePullPolicy: IfNotPresent
         name: kube-proxy-master
         resources: {}

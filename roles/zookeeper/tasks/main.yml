@@ -1,0 +1,49 @@
+- name: "下载zookeeper安装包"
+  get_url:
+    url: "{{ zookeeper_url }}"
+    dest: /tmp
+  tags: zookeeper
+
+- name: "创建安装目录"
+  file:
+    path: "{{ zookeeper_dir }}"
+    state: directory
+    owner: root
+    group: root
+  tags: zookeeper
+
+- name: "解压zookeeper安装包"
+  command: 'tar xzf /tmp/zookeeper-{{ zookeeper_version }}.tar.gz chdir="{{ zookeeper_dir }}"'
+  tags: zookeeper
+
+- name: "配置zoo.cfg"
+  template:
+    src: zoo.cfg
+    dest: "{{ zookeeper_dir }}/conf/zoo.cfg"
+  notify: restart zookeeper
+  tags: zookeeper
+
+- name: "创建数据目录文件"
+  file:
+    path: "{{ zookeeper_data_dir }}"
+    state: directory
+    owner: root
+    group: root
+  tags: zookeeper
+
+- name: "配置myid {{ zk.data_dir }}/myid"
+  template:
+    src: myid
+    dest: "{{ zookeeper_data_dir }}/myid"
+  notify: restart zookeeper
+  tags: zookeeper
+  
+- name: "配置zookeeper启动脚本"
+  template:
+    src: zookeeper-systemd.j2
+    dest: /etc/systemd/system/zookeeper.service
+    owner: root
+    group: root
+    mode: 644
+  notify: start zookeeper
+  tags: zookeeper

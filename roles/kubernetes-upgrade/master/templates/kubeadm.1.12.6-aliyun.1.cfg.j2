@@ -37,7 +37,7 @@ apiServerCertSANs:
   - 127.0.0.1
 token: {{ kubeadm_token }}
 nodeName: {{ NODE_NAME }}
-kubernetesVersion: {{ kube_version }}
+kubernetesVersion: {{ kubernetes_version }}
 apiServerExtraVolumes:
 - name: localtime
   hostPath: /etc/localtime

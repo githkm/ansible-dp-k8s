@@ -1,0 +1,49 @@
+- name: "下载kafka安装包"
+  get_url:
+    url: "{{ kafka_url }}"
+    dest: /tmp
+  tags: kafka
+
+- name: "创建安装目录"
+  file:
+    path: "{{ kafka_dir }}"
+    state: directory
+    owner: root
+    group: root
+  tags: kafka
+
+- name: "解压kafka安装包"
+  command: 'tar xzf /tmp/kafka-{{ kafka_version }}.tar.gz chdir="{{ kafka_dir }}"'
+  tags: kafka
+
+- name: "配置zoo.cfg"
+  template:
+    src: zoo.cfg
+    dest: "{{ kafka_dir }}/conf/zoo.cfg"
+  notify: restart kafka
+  tags: kafka
+
+- name: "创建数据目录文件"
+  file:
+    path: "{{ kafka_data_dir }}"
+    state: directory
+    owner: root
+    group: root
+  tags: kafka
+
+- name: "配置myid {{ zk.data_dir }}/myid"
+  template:
+    src: myid
+    dest: "{{ kafka_data_dir }}/myid"
+  notify: restart kafka
+  tags: kafka
+  
+- name: "配置kafka启动脚本"
+  template:
+    src: kafka-systemd.j2
+    dest: /etc/systemd/system/kafka.service
+    owner: root
+    group: root
+    mode: 644
+  notify: start kafka
+  tags: kafka
