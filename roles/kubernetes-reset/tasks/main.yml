@@ -95,6 +95,7 @@
     - /run/xtables.lock
     - /run/flannel
     - /run/kubernetes
+    - /var/lib/cni
 
 - name: reset | Restart network
   service:
