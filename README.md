@@ -6,6 +6,14 @@ git clone https://git.boleme.net/ops-group/ansible.git
 yum -y install python-devel python-pip
 pip install ansible netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
+##### 2、vim /etc/ansible/ansible.cfg (创建文件前先“mkdir -p /etc/ansible”)
+```
+mkdir -p /etc/ansible
+```
+```
+[defaults]
+host_key_checking = False
+```
 ##### 2、通过免密登录或者密码登录管理需要安装的主机（以下方法选其一）
 （1）通过ssh免密登录【二选一】
 ```
@@ -62,11 +70,6 @@ ansible_ssh_pass=Zt81726354.
 [kube-node]
 127.0.0.1 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 192.168.1.137 NODE_NAME=192.168.1.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
-```
-##### 3、vim /etc/ansible/ansible.cfg (创建文件前先“mkdir -p /etc/ansible”)
-```
-[defaults]
-host_key_checking = False
 ```
 ##### 4、创建集群负载均衡api接口（将三台master的6443端口映射集群ip的5443端口）
 ```
