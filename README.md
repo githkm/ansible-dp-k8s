@@ -14,7 +14,7 @@ mkdir -p /etc/ansible
 [defaults]
 host_key_checking = False
 ```
-##### 2、通过免密登录或者密码登录管理需要安装的主机（以下方法选其一）
+##### 3、通过免密登录或者密码登录管理需要安装的主机（以下方法选其一）
 （1）通过ssh免密登录【二选一】
 ```
 ssh-keygen
