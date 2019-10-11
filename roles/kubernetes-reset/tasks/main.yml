@@ -11,8 +11,8 @@
 
 - name: "delete all container"
   shell: >
-    docker kill $(docker ps -a -q) &&
-    docker rm $(docker ps -a -q)
+    docker ps -aq | xargs -I '{}' docker stop {} &&
+    docker ps -aq | xargs -I '{}' docker rm {}
   ignore_errors: true
 
 - name: reset | stop and disable services
