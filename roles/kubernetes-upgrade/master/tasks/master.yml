@@ -16,7 +16,7 @@
 - name: "等待apiserver重启完成"
   wait_for:
     port: "{{ kube_apiserver_port }}"
-    delay: 10
+    delay: 30
 - name: "kubeadm upgrade升级集群其他Master"
   shell: "kubeadm upgrade node experimental-control-plane"
   when: inventory_hostname != groups['kube-master'][0]
@@ -38,7 +38,7 @@
     cd /etc/kubernetes/manifests &&
     sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
-  when: kubernetes_version == '1.14.6-aliyun.1'
+  when: kubernetes_version == '1.14.6-aliyun.1' or kubernetes_version == '1.15.4'
 - name: "调整所有apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
