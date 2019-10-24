@@ -134,3 +134,11 @@
   shell: >
     modprobe br_netfilter &&
     echo -e "br_netfilter\n" >> /etc/modules-load.d/k8s-basic-modules.conf
+- name: "配置IPVS模块"
+  shell: >
+    modprobe ip_vs_wrr &&
+    modprobe ip_vs_sh &&
+    modprobe ip_vs_rr &&
+    echo -e "ip_vs_wrr\nip_vs_sh\nip_vs_rr" > /etc/modules-load.d/ack-ipvs-modules.conf
+  when: kube_proxy_mode == 'ipvs'
+
