@@ -8,6 +8,11 @@
     src: '/opt/kubernetes-{{ kubernetes_version }}.tar.gz'
     dest: '/opt'
 
+- name: "配置br_netfilter模块"
+  shell: >
+    modprobe br_netfilter &&
+    echo -e "br_netfilter\n" >> /etc/modules-load.d/k8s-basic-modules.conf
+
 - name: "升级crictl"
   shell: >
     rm -rf /usr/bin/crictl &&
