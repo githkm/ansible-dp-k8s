@@ -130,3 +130,7 @@
     - 99-k8s.conf
 - name: "生效内核参数"
   shell: sysctl --system || true
+- name: "配置br_netfilter模块"
+  shell: >
+    modprobe br_netfilter &&
+    echo -e "br_netfilter\n" >> /etc/modules-load.d/k8s-basic-modules.conf
