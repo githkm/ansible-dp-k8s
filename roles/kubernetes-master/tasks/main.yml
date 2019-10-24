@@ -78,7 +78,7 @@
     sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1alpha1" kube-apiserver.yaml
   when: kubernetes_version == '1.12.6-aliyun.1'
-- name: "调整1.14.6版本apiserver配置"
+- name: "调整1.14.6以上版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
     sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&

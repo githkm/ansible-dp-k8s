@@ -23,9 +23,9 @@ kubernetes_version: 1.14.8-aliyun.1
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
 kube_certs_time: 3650
 #1.15.4使用这个地址
-kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
-#1.12.6-aliyun.1和1.14.6-aliyun.1使用这个地址
-#kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs"
+#kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers"
+#1.12.6-aliyun.1,1.14.6-aliyun.1和1.14.8-aliyun.1使用这个地址
+kube_image_repo: "registry.cn-hangzhou.aliyuncs.com/acs"
 # K8s image pull policy (imagePullPolicy)
 k8s_image_pull_policy: IfNotPresent
 kube_dns_domain: "cluster.local"
@@ -34,10 +34,9 @@ kube_apiserver_ip: "{{ kube_service_addresses|ipaddr('net')|ipaddr(1)|ipaddr('ad
 kube_dns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
 kube_pods_subnet: 10.63.0.0/16
 kube_apiserver_node_port_range: 30000-32767
-#kube_version: v1.12.6-aliyun.1
-#kube_version: v1.14.6-aliyun.1
 kube_apiserver_port: 6443
-kube_proxy_mode: ipvs
+#kube_proxy_mode: ipvs
+kube_proxy_mode: iptables
 kubeadm_token: fpn5l0.mfegiopmlnlsk6bb  #新加节点时记得更新此token
 #升级时是否驱逐节点上的容器组
 drain_nodes: false
