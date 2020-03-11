@@ -34,3 +34,6 @@ IP.{{ loop.index }} = {% if k8s_interface is defined %}{{ hostvars[host]['ansibl
 IP.{{ idx }} = {{ loadbalancer_apiserver_ip }}
 IP.{{ idx + 1 }} = {{ kube_apiserver_ip }} 
 IP.{{ idx + 2 }} = 127.0.0.1
+{% if loadbalancer_apiserver_ext_ip is defined %}
+IP.{{ idx + 3 }} = {{ loadbalancer_apiserver_ext_ip }}
+{% endif %}
