@@ -19,6 +19,9 @@ apiServer:
 {% for host in groups['kube-master'] %}
   - {{ host }}
 {% endfor %}
+{% if loadbalancer_apiserver_ext_ip is defined %}
+  - {{ loadbalancer_apiserver_ext_ip }}
+{% endif %}
   - {{ loadbalancer_apiserver_ip }}
   - {{ kube_apiserver_ip }}
 
