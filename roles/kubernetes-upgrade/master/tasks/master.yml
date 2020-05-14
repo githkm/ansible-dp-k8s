@@ -1,11 +1,12 @@
 - name: "kubeadm upgrade升级集群第一台Master"
-  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force"
+  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force --ignore-preflight-errors=CoreDNSUnsupportedPlugins"
   when: inventory_hostname == groups['kube-master'][0]
-- name: "升级kube-proxy"
+- name: "调整1.16.6以上版本apiserver配置"
   shell: >
-    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system &&
-    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system
-  when: inventory_hostname == groups['kube-master'][0]
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1,extensions/v1beta1/daemonsets=true,extensions/v1beta1/deployments=true,extensions/v1beta1/replicasets=true,extensions/v1beta1/networkpolicies=true,extensions/v1beta1/podsecuritypolicies=true,apps/v1beta1=true,apps/v1beta2=true" kube-apiserver.yaml
+  when: inventory_hostname == groups['kube-master'][0] and kubernetes_version == '1.16.6-aliyun.1'
 - name: "重启kubelet服务"
   systemd:
     daemon_reload: yes
@@ -17,9 +18,17 @@
   wait_for:
     port: "{{ kube_apiserver_port }}"
     delay: 30
+- name: "升级kube-proxy"
+  shell: >
+    kubectl set image ds/kube-proxy-master kube-proxy-master={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system &&
+    kubectl set image ds/kube-proxy-worker kube-proxy-worker={{ kube_image_repo }}/kube-proxy:v{{ kubernetes_version }} -n kube-system
+  when: inventory_hostname == groups['kube-master'][0]
 - name: "kubeadm upgrade升级集群其他Master"
   shell: "kubeadm upgrade node experimental-control-plane"
-  when: inventory_hostname != groups['kube-master'][0]
+  when: inventory_hostname != groups['kube-master'][0] and kubernetes_version != '1.16.6-aliyun.1'
+- name: "kubeadm upgrade升级集群其他Master"
+  shell: "kubeadm upgrade node"
+  when: inventory_hostname != groups['kube-master'][0] and kubernetes_version == '1.16.6-aliyun.1'
 - name: "重启kubelet服务"
   systemd:
     daemon_reload: yes
@@ -39,6 +48,12 @@
     sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
   when: kubernetes_version == '1.14.6-aliyun.1' or kubernetes_version == '1.14.8-aliyun.1' or kubernetes_version == '1.15.4'
+- name: "调整1.16.6以上版本apiserver配置"
+  shell: >
+    cd /etc/kubernetes/manifests &&
+    sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
+    sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1,extensions/v1beta1/daemonsets=true,extensions/v1beta1/deployments=true,extensions/v1beta1/replicasets=true,extensions/v1beta1/networkpolicies=true,extensions/v1beta1/podsecuritypolicies=true,apps/v1beta1=true,apps/v1beta2=true" kube-apiserver.yaml
+  when: kubernetes_version == '1.16.6-aliyun.1' and inventory_hostname != groups['kube-master'][0]
 - name: "调整所有apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&

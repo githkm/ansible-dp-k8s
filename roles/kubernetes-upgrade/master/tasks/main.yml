@@ -66,7 +66,7 @@
 - name: "Master镜像下载"
   shell: "kubeadm config images pull --config /etc/kubeadm/kubeadm.cfg"
 - name: "测试升级尝试"
-  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force --dry-run"
+  shell: "kubeadm upgrade apply --config /etc/kubeadm/kubeadm.cfg --allow-experimental-upgrades --force --dry-run --ignore-preflight-errors=CoreDNSUnsupportedPlugins"
   ignore_errors: yes 
   register: test_upgrade
 - include: master.yml

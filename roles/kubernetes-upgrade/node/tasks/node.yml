@@ -12,7 +12,6 @@
   shell: >
     modprobe br_netfilter &&
     echo -e "br_netfilter\n" >> /etc/modules-load.d/k8s-basic-modules.conf
-
 - name: "升级crictl"
   shell: >
     rm -rf /usr/bin/crictl &&

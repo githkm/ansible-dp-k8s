@@ -3,8 +3,10 @@ Description=etcd service
 After=network.target
 
 [Service]
+{% if etcd_version == 'v3.4.3' %}
 Environment="ETCD_QUOTA_BACKEND_BYTES=100000000000"
 Environment="ETCD_EXPERIMENTAL_BACKEND_BBOLT_FREELIST_TYPE=map"
+{% endif %}
 #Type=notify
 WorkingDirectory={{ etcd_data_dir }}
 User=etcd

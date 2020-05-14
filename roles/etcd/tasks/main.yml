@@ -112,7 +112,7 @@
     host: "{{ ansible_default_ipv4.address }}"
     delay: 10
 - name: "检查状态3.3.8"
-  shell: etcdctl member list --endpoints=https://{{ ansible_default_ipv4.address }}:2379 -ca-file=/var/lib/etcd/cert/ca.pem --cert-file=/var/lib/etcd/cert/etcd-client.pem --key-file=/var/lib/etcd/cert/etcd-client-key.pem 
+  shell: etcdctl --endpoints=https://{{ ansible_default_ipv4.address }}:2379 -ca-file=/var/lib/etcd/cert/ca.pem --cert-file=/var/lib/etcd/cert/etcd-client.pem --key-file=/var/lib/etcd/cert/etcd-client-key.pem member list
   register: etcd_check
   when: etcd_version == 'v3.3.8'
 - name: "检查状态3.4.3"
