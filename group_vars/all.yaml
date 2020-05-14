@@ -46,6 +46,8 @@ need_check_kubelet_version: false
 #负载均衡
 keepalived_enable: true
 loadbalancer_apiserver_ip: 10.75.1.180
+#公网地址，没有就注释掉
+loadbalancer_apiserver_ext_ip: 182.140.244.151
 loadbalancer_apiserver_port: 5443
 loadbalancer_apiserver_keepalive_timeout: 5m
 loadbalancer_apiserver_healthcheck_port: 8081
