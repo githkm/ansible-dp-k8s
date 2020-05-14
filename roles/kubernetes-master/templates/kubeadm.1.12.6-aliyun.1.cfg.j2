@@ -3,7 +3,7 @@ kind: InitConfiguration
 bootstrapTokens:
 - token: {{ kubeadm_token }}
 nodeRegistration:
-  name: {{ NODE_NAME }}
+  name: {{ ansible_default_ipv4.address }}
 ---
 apiVersion: kubeadm.k8s.io/v1alpha3
 kind: ClusterConfiguration
@@ -39,7 +39,7 @@ apiServerCertSANs:
   - {{ kube_apiserver_ip }}
   - 127.0.0.1
 token: {{ kubeadm_token }}
-nodeName: {{ NODE_NAME }}
+nodeName: {{ ansible_default_ipv4.address }}
 kubernetesVersion: {{ kubernetes_version }}
 apiServerExtraVolumes:
 - name: localtime

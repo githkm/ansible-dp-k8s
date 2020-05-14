@@ -12,7 +12,7 @@
 
 - name: "Flannel | Create flannel manifest"
   template:
-    src: kube-flannel-vxlan.yml.j2
+    src: kube-flannel-vxlan.{{ flannel_image_tag }}.yml.j2
     dest: "/etc/kubernetes/addons/flannel/kube-flannel-vxlan.yml"
   register: flannel_manifest
   when: inventory_hostname == groups['kube-master'][0]

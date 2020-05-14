@@ -15,7 +15,7 @@
     dest: '/opt'
 - name: '复制cfssl'
   copy:
-    src: '/opt/pkg/etcd/v3.3.8/rpm/{{ item }}'
+    src: '/opt/pkg/etcd/{{ etcd_version }}/rpm/{{ item }}'
     dest: '/usr/bin/{{ item }}'
     mode: '555'
   with_items:

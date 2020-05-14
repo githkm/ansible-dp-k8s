@@ -12,7 +12,7 @@
 
 - name: "CoreDNS | Create coredns manifest"
   template:
-    src: coredns.yml.j2
+    src: coredns.{{ coredns_image_tag }}.yml.j2
     dest: "/etc/kubernetes/addons/coredns/coredns.yml"
   register: coredns_manifest
   when: inventory_hostname == groups['kube-master'][0]
