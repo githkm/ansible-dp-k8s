@@ -1,0 +1,11 @@
+- name: "检查docker版本"
+  shell: "docker version --format 'v{{ '{{' }}.Server.Version{{ '}}' }}'"
+  register: docker_l_version
+
+- name: "判断节点docker是否需要升级"
+  assert:
+    that: "docker_l_version.stdout.split(' ')[-1] is version('v{{ docker_version }}', '<')"
+    fail_msg: "节点docker无需升级，候选升级版本：'v{{ docker_version }}'，当前节点版本：{{ docker_l_version.stdout.split(' ')[-1] }}"
+    success_msg: "节点docker需要升级，候选升级版本：'v{{ docker_version }}'，当前节点版本：{{ docker_l_version.stdout.split(' ')[-1] }}"
+
+- include: docker.yml
