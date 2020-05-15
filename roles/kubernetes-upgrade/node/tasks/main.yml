@@ -2,11 +2,11 @@
   command: "kubelet --version"
   register: kubelet_version
 
-#- name: "判断节点是否需要升级"
-#  assert:
-#    that: "kubelet_version.stdout.split(' ')[-1] is version('v{{ kubernetes_version }}', '<') or need_check_kubelet_version == false"
-#    fail_msg: "节点无需升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }} "
-#    success_msg: "节点需要升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }}"
+- name: "判断节点是否需要升级"
+  assert:
+    that: "kubelet_version.stdout.split(' ')[-1] is version('v{{ kubernetes_version }}', '<') or need_check_kubelet_version == false"
+    fail_msg: "节点无需升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }} "
+    success_msg: "节点需要升级，候选升级版本：'v{{ kubernetes_version }}'，当前节点版本：{{ kubelet_version.stdout.split(' ')[-1] }}"
 
 #- name: "判断节点是否ready"
 #  shell: >-
@@ -39,30 +39,19 @@
 #      {%- else -%}
 #      false
 #      {%- endif %}
-#- name: "封锁节点"
-#  command: "kubectl cordon {{ ansible_default_ipv4.address }}"
-#  delegate_to: "{{ groups['kube-master'][0] }}"
+- name: "封锁节点"
+  command: "kubectl cordon {{ ansible_default_ipv4.address }}"
+  delegate_to: "{{ groups['kube-master'][0] }}"
 
-#- name: "驱逐节点上容器组"
-#  command: >-
-#    kubectl drain
-#    --force
-#    --ignore-daemonsets
-#    --delete-local-data {{ ansible_default_ipv4.address }}
-#  delegate_to: "{{ groups['kube-master'][0] }}"
-#  when:
-#    - drain_nodes
+- name: "驱逐节点上容器组"
+  command: >-
+    kubectl drain
+    --force
+    --ignore-daemonsets
+    --delete-local-data {{ ansible_default_ipv4.address }}
+  delegate_to: "{{ groups['kube-master'][0] }}"
+  when:
+    - drain_nodes
 
-#- include: node.yml
+- include: node.yml
 
-- name: "检查docker版本"
-  shell: "docker version --format 'v{{ '{{' }}.Server.Version{{ '}}' }}'"
-  register: docker_l_version
-
-- name: "判断节点docker是否需要升级"
-  assert:
-    that: "docker_l_version.stdout.split(' ')[-1] is version('v{{ docker_version }}', '<')"
-    fail_msg: "节点docker无需升级，候选升级版本：'v{{ docker_version }}'，当前节点版本：{{ docker_l_version.stdout.split(' ')[-1] }}"
-    success_msg: "节点docker需要升级，候选升级版本：'v{{ docker_version }}'，当前节点版本：{{ docker_l_version.stdout.split(' ')[-1] }}"
-
-#- include: docker.yml
