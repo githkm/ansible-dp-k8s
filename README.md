@@ -47,17 +47,17 @@ ansible_ssh_user=root
 ansible_ssh_pass=Zt81726354.
 
 [kube-master]
-192.168.96.19 NODE_NAME=192.168.96.19
-192.168.96.18 NODE_NAME=192.168.96.18
-192.168.96.20 NODE_NAME=192.168.96.20
+192.168.96.19
+192.168.96.18
+192.168.96.20
 
 [kube-master:vars]
 ansible_ssh_user=root
 ansible_ssh_pass=Zt81726354.
 
 [kube-node]
-192.168.96.22 NODE_NAME=192.168.96.22
-192.168.96.23 NODE_NAME=192.168.96.23
+192.168.96.22
+192.168.96.23
 
 [kube-node:vars]
 ansible_ssh_user=root
@@ -135,9 +135,9 @@ nginx-proxy-192.168.96.20                   1/1     Running   0          57m
 （1）首先请确认inventory/hosts文件中node节点中有已经安装好的节点主机ip，如果有请注释，然后在添加新的node节点ip地址和用户密码，如下。
 
 [kube-node]
-#192.168.96.22 NODE_NAME=192.168.96.22
-#192.168.96.23 NODE_NAME=192.168.96.23
-192.168.96.137 NODE_NAME=192.168.96.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
+#192.168.96.22
+#192.168.96.23
+192.168.96.137 ansible_ssh_user=root ansible_ssh_port=22 ansible_ssh_pass=123456
 
 （2）、复制master集群token值粘贴至group_vars/all.yaml文件中的kubeadm_token 。
 kubeadm token list
