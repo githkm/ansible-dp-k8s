@@ -109,7 +109,8 @@
 - name: "等待apiserver重启完成" 
   wait_for: 
     port: "{{ kube_apiserver_port }}"
-    delay: 10
+    delay: 30
 - name: "重启keepalived"
-  shell: systemctl restart keepalived
+  shell: systemctl start keepalived
   when: keepalived_enable
+  ignore_errors: true

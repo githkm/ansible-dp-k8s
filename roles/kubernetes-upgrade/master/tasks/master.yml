@@ -73,4 +73,4 @@
 - name: "等待apiserver重启完成"
   wait_for:
     port: "{{ kube_apiserver_port }}"
-    delay: 10
+    delay: 30

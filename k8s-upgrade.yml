@@ -1,6 +1,6 @@
 - name: "升级Master节点"
   hosts: kube-master
   roles:
-#    - { role: 'kubernetes-upgrade/master', tags: "kubernetes-upgrade/master" }
+    - { role: 'kubernetes-upgrade/master', tags: "kubernetes-upgrade/master" }
 #    - { role: 'kubernetes-upgrade/node', tags: "kubernetes-upgrade/node" }
-    - { role: 'kubernetes-upgrade/docker', tags: "kubernetes-upgrade/docker" }
+#    - { role: 'kubernetes-upgrade/docker', tags: "kubernetes-upgrade/docker" }
