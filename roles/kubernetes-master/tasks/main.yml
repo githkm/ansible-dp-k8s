@@ -89,7 +89,7 @@
     cd /etc/kubernetes/manifests &&
     sed -i "s/NodeRestriction/NodeRestriction/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1,extensions/v1beta1/daemonsets=true,extensions/v1beta1/deployments=true,extensions/v1beta1/replicasets=true,extensions/v1beta1/networkpolicies=true,extensions/v1beta1/podsecuritypolicies=true,apps/v1beta1=true,apps/v1beta2=true" kube-apiserver.yaml
-  when: kubernetes_version == '1.16.6-aliyun.1'
+  when: kubernetes_version == '1.16.6-aliyun.1' or kubernetes_version == '1.16.9-aliyun.1'
 - name: "调整所有apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
