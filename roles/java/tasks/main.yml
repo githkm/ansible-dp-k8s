@@ -16,11 +16,11 @@
   command: 'tar xzf /tmp/jdk-{{ java_version }}.tar.gz chdir="/data"'
   tags: java
 
-- name: "移除openjdk'"
-  yum: name=*-openjdk-* state=absent
+#- name: "移除openjdk'"
+#  yum: name=*-openjdk-* state=absent
 
-- name: "移除gcj包"
-  yum: name=*gcj* state=absent
+#- name: "移除gcj包"
+#  yum: name=*gcj* state=absent
 
 - name: "设置JAVA_HOME environment"
   lineinfile: dest=/etc/profile regexp="^JAVA_HOME=" line="JAVA_HOME=/data/{{ java_path }}"

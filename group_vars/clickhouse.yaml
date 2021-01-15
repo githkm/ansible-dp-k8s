@@ -5,4 +5,4 @@ clickhouse_data_path: /data
 clickhouse_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/clickhouse/clickhouse-{{ clickhouse_version  }}.tar.gz"
 fdisk_dev: /dev/vdb
 fdisk_fstype: ext4
-fdisk_mount_path: /data1
+fdisk_mount_path: /data

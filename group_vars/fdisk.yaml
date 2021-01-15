@@ -1,3 +1,0 @@
-fdisk_dev: /dev/vdb
-fdisk_fstype: ext4
-fdisk_mount_path: /data1
