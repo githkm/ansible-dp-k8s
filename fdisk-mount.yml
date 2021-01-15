@@ -1,0 +1,4 @@
+- name: "分区挂载磁盘"
+  hosts: clickhouse
+  roles:
+    - { role: 'fdisk', tags: "fdisk", OP_TYPE: mount }

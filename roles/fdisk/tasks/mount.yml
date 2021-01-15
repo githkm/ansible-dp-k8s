@@ -1,0 +1,27 @@
+- name: Create a new primary partition
+  parted:
+    device: "{{ fdisk_dev }}"
+    number: 1
+    state: present
+
+- name: Create a filesystem on /dev/sdb1 and check disk blocks
+  filesystem:
+    fstype: "{{ fdisk_fstype }}"
+    dev: "{{ fdisk_dev }}1"
+
+- name: Creates directory
+  file:
+    path: "{{ fdisk_mount_path }}"
+    state: directory
+
+- name: Umount datanode disks
+  mount:
+    path: "{{ fdisk_mount_path }}"
+    state: absent
+
+- name: Mount up device to path
+  mount:
+    path: "{{ fdisk_mount_path }}"
+    src: "{{ fdisk_dev }}1"
+    fstype: "{{ fdisk_fstype }}"
+    state: present

@@ -2,6 +2,4 @@ java_version: 8u171-linux-x64
 java_path: jdk1.8.0_171
 java_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/jdk/jdk-{{ java_version  }}.tar.gz"
 zookeeper_version: 3.4.14
-#zookeeper_dir: "/data/zookeeper-{{ zookeeper_version  }}"
-#zookeeper_data_dir: /data/zookeeper
 zookeeper_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/zookeeper/zookeeper-{{ zookeeper_version  }}.tar.gz"
