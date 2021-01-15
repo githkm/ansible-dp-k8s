@@ -52,7 +52,7 @@
   template:
     src: 'clickhouse-server.j2'
     dest: '/etc/init.d/clickhouse-server'
-    mode: 754 
+    mode: 0754 
 
 - name: daemon_reload
   systemd: daemon_reload=yes
