@@ -1,28 +1,3 @@
 # 分区挂载
-#- import_tasks: mount.yml
-#  when: 'OP_TYPE == "mount"'
-
-- name: partition new disk
-  shell: /bin/echo -e "n\np\n1\n\n\n\nw" | sudo fdisk {{ fdisk_dev }}
-
-- name: Create a filesystem on /dev/sdb1 and check disk blocks
-  filesystem:
-    fstype: "{{ fdisk_fstype }}"
-    dev: "{{ fdisk_dev }}1"
-
-- name: Creates directory
-  file:
-    path: "{{ fdisk_mount_path }}"
-    state: directory
-
-- name: Umount datanode disks
-  mount:
-    path: "{{ fdisk_mount_path }}"
-    state: absent
-
-- name: Mount up device to path
-  mount:
-    path: "{{ fdisk_mount_path }}"
-    src: "{{ fdisk_dev }}1"
-    fstype: "{{ fdisk_fstype }}"
-    state: present
+- import_tasks: mount.yml
+  when: 'OP_TYPE == "mount"'

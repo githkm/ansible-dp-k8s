@@ -1,8 +1,5 @@
-- name: Create a new primary partition
-  parted:
-    device: "{{ fdisk_dev }}"
-    number: 1
-    state: present
+- name: partition new disk
+  shell: /bin/echo -e "n\np\n1\n\n\n\nw" | sudo fdisk {{ fdisk_dev }}
 
 - name: Create a filesystem on /dev/sdb1 and check disk blocks
   filesystem:
@@ -25,3 +22,6 @@
     src: "{{ fdisk_dev }}1"
     fstype: "{{ fdisk_fstype }}"
     state: present
+
+- name: Now mount
+  shell: mount {{ fdisk_dev }}1 {{ fdisk_mount_path }}
