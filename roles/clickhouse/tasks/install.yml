@@ -1,0 +1,58 @@
+- name: "设置时区"
+  timezone:
+    name: Asia/Shanghai
+
+- name: "关闭防火墙"
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+
+- name: "永久关闭SELINUX"
+  selinux: state=disabled
+
+- name: "临时关闭SELINUX"
+  shell: "setenforce 0"
+  ignore_errors: yes
+
+#- name: 初始化源
+#  shell: curl -s https://packagecloud.io/install/repositories/Altinity/clickhouse/script.rpm.sh | sudo bash
+
+#- name: 安装clickhouse
+#  shell: yum install -y clickhouse-server clickhouse-client
+
+- name: "下载clickhouse安装包"
+  get_url:
+    url: "{{ clickhouse_url }}"
+    dest: /tmp
+
+- name: "创建安装目录"
+  file:
+    path: "{{ clickhouse_data_path }}/clickhouse"
+    state: directory
+    owner: root
+    group: root
+
+- name: "解压clickhouse安装包"
+  command: 'tar xzf /tmp/clickhouse-{{ clickhouse_version }}.tar.gz chdir="/opt"'
+
+- name: "安装clickhouse本地包"
+  shell: 'yum localinstall -y $(ls /opt/clickhouse-{{ clickhouse_version }} | xargs -I "{}" echo -n "/opt/clickhouse-{{ clickhouse_version }}/{} ")'
+
+- name: 生成 clickhouse 配置文件
+  template:
+    src: '{{ item.src }}.j2'
+    dest: '/etc/clickhouse-server/{{ item.dest }}'
+  with_items:
+    - { src: 'config.xml', dest: 'config.xml' }
+    - { src: 'metrika.xml', dest: 'metrika.xml' }
+    - { src: 'users.xml', dest: 'users.xml' }
+
+- name: 生成 clickhouse 启动脚本
+  template:
+    src: 'clickhouse-server.j2'
+    dest: '/etc/init.d/clickhouse-server'
+    mode: 754 
+
+- name: daemon_reload
+  systemd: daemon_reload=yes

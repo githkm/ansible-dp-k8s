@@ -1,15 +1,15 @@
-# 安装zookeeper
+# 安装clickhouse
 - import_tasks: install.yml
   when: 'OP_TYPE == "install"'
 
-# 启动zookeeper
+# 启动clickhouse
 - import_tasks: start.yml
   when: 'OP_TYPE == "start"'
 
-# 停止zookeeper
+# 停止clickhouse
 - import_tasks: stop.yml
   when: 'OP_TYPE == "stop"'
 
-# 查看zookeeper
+# 查看clickhouse
 - import_tasks: status.yml
   when: 'OP_TYPE == "status"'

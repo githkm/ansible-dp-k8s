@@ -1,0 +1,5 @@
+- name: 查看 zookeeper
+  shell: source /etc/profile && cd /data/zookeeper-{{ zookeeper_version }}/bin/ && sh zkServer.sh status
+  register: ps
+
+- debug: var=ps.stdout_lines

@@ -6,14 +6,14 @@
 
 - name: "创建安装目录"
   file:
-    path: "/usr/local/java"
+    path: "/data"
     state: directory
     owner: root
     group: root
   tags: java
 
 - name: "解压java安装包"
-  command: 'tar xzf /tmp/jdk-{{ java_version }}.tar.gz chdir="/usr/local/java"'
+  command: 'tar xzf /tmp/jdk-{{ java_version }}.tar.gz chdir="/data"'
   tags: java
 
 - name: "移除openjdk'"
@@ -23,19 +23,7 @@
   yum: name=*gcj* state=absent
 
 - name: "设置JAVA_HOME environment"
-  lineinfile: dest=/etc/profile regexp="^JAVA_HOME=" line="JAVA_HOME=/usr/local/java"
+  lineinfile: dest=/etc/profile regexp="^JAVA_HOME=" line="JAVA_HOME=/data/{{ java_path }}"
 
 - name: "设置PATH environment"
   lineinfile: dest=/etc/profile regexp="^PATH=\$PATH:\$JAVA_HOME" line="PATH=$PATH:$JAVA_HOME/bin"
-
-- name: "设置CLASSPATH environment"
-  lineinfile: dest=/etc/profile regexp="^CLASSPATH=" line="CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/sapjco3.jar"
-
-- name: "设置JRE_HOME environment"
-  lineinfile: dest=/etc/profile regexp="^JRE_HOME" line="JRE_HOME=$JAVA_HOME/jre"
-
-- name: "设置LD_LIBRARY_PATH environment"
-  lineinfile: dest=/etc/profile regexp="^LD_LIBRARY_PATH" line="LD_LIBRARY_PATH=dir:$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64/server"
-
-- name: "设置JAVA_HOME LD_LIBRARY_PATH PATH"
-  lineinfile: dest=/etc/profile regexp="^export JAVA_HOME" line="export JAVA_HOME LD_LIBRARY_PATH PATH"

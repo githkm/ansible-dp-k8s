@@ -1,0 +1,58 @@
+- name: "设置时区"
+  timezone:
+    name: Asia/Shanghai
+
+- name: "关闭防火墙"
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+
+- name: "永久关闭SELINUX"
+  selinux: state=disabled
+
+- name: "临时关闭SELINUX"
+  shell: "setenforce 0"
+  ignore_errors: yes
+
+- name: "下载zookeeper安装包"
+  get_url:
+    url: "{{ zookeeper_url }}"
+    dest: /tmp
+
+- name: "创建安装目录"
+  file:
+    path: "/data"
+    state: directory
+    owner: root
+    group: root
+
+- name: "解压zookeeper安装包"
+  command: 'tar xzf /tmp/zookeeper-{{ zookeeper_version }}.tar.gz chdir="/data"'
+
+- name: "创建数据目录"
+  file:
+    path: "/data/zookeeper-{{ zookeeper_version }}/data"
+    state: directory
+    owner: root
+    group: root
+
+- name: "创建日志目录"
+  file:
+    path: "/data/zookeeper-{{ zookeeper_version }}/logs"
+    state: directory
+    owner: root
+    group: root
+
+- name: "配置zoo.cfg"
+  template:
+    src: zoo.cfg.j2
+    dest: "/data/zookeeper-{{ zookeeper_version }}/conf/zoo.cfg"
+
+- name: "配置myid {{ zookeeper_dir }}/data/myid"
+  template:
+    src: myid.j2
+    dest: "/data/zookeeper-{{ zookeeper_version }}/data/myid"
+ 
+#- name: 启动 zookeeper
+#  shell: source /etc/profile && cd /data/zookeeper-{{ zookeeper_version }}/bin/ && sh zkServer.sh start

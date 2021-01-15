@@ -1,0 +1,5 @@
+clickhouse_version: 20.8.3.18
+clickhouse_cluster_name: default
+clickhouse_password: Ops@123456
+clickhouse_data_path: /data
+clickhouse_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/clickhouse/clickhouse-{{ clickhouse_version  }}.tar.gz"

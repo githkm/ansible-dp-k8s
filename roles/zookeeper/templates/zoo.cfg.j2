@@ -1,8 +1,46 @@
-tickTime={{ zk.tick_time }}
-dataDir={{ zk.data_dir }}
+# The number of milliseconds of each tick
+tickTime=2000
+# The number of ticks that the initial
+# synchronization phase can take
+# This value is not quite motivated
+initLimit=300
+# The number of ticks that can pass between
+# sending a request and getting an acknowledgement
+syncLimit=10
+
+maxClientCnxns=2000
+
+# It is the maximum value that client may request and the server will accept.
+# It is Ok to have high maxSessionTimeout on server to allow clients to work with high session timeout if they want.
+# But we request session timeout of 30 seconds by default (you can change it with session_timeout_ms in ClickHouse config).
+maxSessionTimeout=60000000
+# the directory where the snapshot is stored.
+dataDir=/data/zookeeper-{{ zookeeper_version }}/data
+# Place the dataLogDir to a separate physical disc for better performance
+dataLogDir=/data/zookeeper-{{ zookeeper_version }}/logs
+
+autopurge.snapRetainCount=10
+autopurge.purgeInterval=1
+
+
+# To avoid seeks ZooKeeper allocates space in the transaction log file in
+# blocks of preAllocSize kilobytes. The default block size is 64M. One reason
+# for changing the size of the blocks is to reduce the block size if snapshots
+# are taken more often. (Also, see snapCount).
+preAllocSize=131072
+
+# Clients can submit requests faster than ZooKeeper can process them,
+# especially if there are a lot of clients. To prevent ZooKeeper from running
+# out of memory due to queued requests, ZooKeeper will throttle clients so that
+# there is no more than globalOutstandingLimit outstanding requests in the
+# system. The default limit is 1,000.ZooKeeper logs transactions to a
+# transaction log. After snapCount transactions are written to a log file a
+# snapshot is started and a new transaction log file is started. The default
+# snapCount is 10,000.
+snapCount=3000000
+
 clientPort=2181
-initLimit=5
-syncLimit=2
-{% for name in groups["zk"] %}
-server.{{ loop.index }}={{ name }}:2888:3888
+
+{% for name in groups["zookeeper"] %}
+server.{{ loop.index - 1 }}={{ name }}:2888:3888
 {% endfor %}

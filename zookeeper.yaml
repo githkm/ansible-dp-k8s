@@ -1,0 +1,8 @@
+- name: "安装zookeeper服务"
+  hosts: zookeeper
+  roles:
+  #  - { role: 'java', tags: "install_java" }
+  #  - { role: 'zookeeper', OP_TYPE: install }
+    - { role: 'zookeeper', OP_TYPE: start }
+  #  - { role: 'zookeeper', OP_TYPE: status }
+  #  - { role: 'zookeeper', OP_TYPE: stop }

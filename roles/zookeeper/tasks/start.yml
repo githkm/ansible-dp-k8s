@@ -1,0 +1,5 @@
+- name: 启动 zookeeper
+  shell: source /etc/profile && cd /data/zookeeper-{{ zookeeper_version }}/bin/ && sh zkServer.sh start
+  register: ps
+
+- debug: var=ps.stdout_lines

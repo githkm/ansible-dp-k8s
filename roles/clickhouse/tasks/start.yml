@@ -1,0 +1,5 @@
+- name: 启动 clickhouse-server
+  shell: systemctl start clickhouse-server
+  register: ps
+
+- debug: var=ps.stdout_lines

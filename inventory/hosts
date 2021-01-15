@@ -32,3 +32,30 @@ ansible_ssh_pass=123abcABC
 [kube-node:vars]
 ansible_ssh_user=root
 ansible_ssh_pass=123abcABC
+
+[zookeeper]
+172.31.161.218 myid=0
+172.31.161.63 myid=1
+172.31.161.193 myid=2
+
+[zookeeper:vars]
+ansible_ssh_user=root
+ansible_ssh_pass=123abcABC
+
+[clickhouse:children]
+clickhouse-shard1
+clickhouse-shard2
+clickhouse-shard3
+
+[clickhouse-shard1]
+172.31.161.218 shard=1 replica=1
+
+[clickhouse-shard2] 
+172.31.161.63 shard=2 replica=1
+
+[clickhouse-shard3]
+172.31.161.193 shard=3 replica=1
+
+[clickhouse:children:vars]
+ansible_ssh_user=root
+ansible_ssh_pass=123abcABC

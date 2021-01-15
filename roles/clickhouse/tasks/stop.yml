@@ -1,0 +1,5 @@
+- name: 停止 clickhouse-server
+  shell: systemctl stop clickhouse-server
+  register: ps
+
+- debug: var=ps.stdout_lines

@@ -1,0 +1,5 @@
+- name: 查看 clickhouse-server
+  shell: systemctl status clickhouse-server
+  register: ps
+
+- debug: var=ps.stdout_lines

@@ -1,0 +1,7 @@
+- name: "安装clickhouse服务"
+  hosts: clickhouse
+  roles:
+  #  - { role: 'clickhouse', OP_TYPE: install }
+    - { role: 'clickhouse', OP_TYPE: start }
+    - { role: 'clickhouse', OP_TYPE: status }
+  #  - { role: 'zookeeper', OP_TYPE: stop }
