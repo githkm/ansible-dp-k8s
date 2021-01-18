@@ -2,6 +2,7 @@
 
 ```
 yum install git vim sshpass python-devel python-pip -y
+pip install --upgrade pip
 pip install ansible netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 git clone https://git.boleme.net/ops-group/ansible.git
 ```
