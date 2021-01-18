@@ -13,3 +13,8 @@
 # 查看clickhouse
 - import_tasks: status.yml
   when: 'OP_TYPE == "status"'
+
+# 卸载 clickhouse
+- import_tasks: uninstall.yml
+  when: 'OP_TYPE == "uninstall"'
+

@@ -106,9 +106,7 @@
          If not specified, than it is determined analogous to 'hostname -f' command.
          This setting could be used to switch replication to another network interface.
       -->
-    <!--
-    <interserver_http_host>example.yandex.ru</interserver_http_host>
-    -->
+    <interserver_http_host>{{ ansible_default_ipv4.address }}</interserver_http_host>
 
     <!-- Listen specified host. use :: (wildcard IPv6 address), if you want to accept connections both with IPv4 and IPv6 from everywhere. -->
     <!-- <listen_host>::</listen_host> -->

@@ -4,5 +4,6 @@
     - { role: 'java', tags: "install_java" }
     - { role: 'zookeeper', OP_TYPE: install }
     - { role: 'zookeeper', OP_TYPE: start }
-  #  - { role: 'zookeeper', OP_TYPE: status }
+    - { role: 'zookeeper', OP_TYPE: status }
   #  - { role: 'zookeeper', OP_TYPE: stop }
+  #  - { role: 'zookeeper', OP_TYPE: uninstall }

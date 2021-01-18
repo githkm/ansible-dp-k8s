@@ -1,0 +1,4 @@
+- import_tasks: stop.yml
+
+- name: 删除数据
+  shell: rm -rf /data/zookeeper-{{ zookeeper_version }}

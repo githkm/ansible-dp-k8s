@@ -13,3 +13,7 @@
 # 查看zookeeper
 - import_tasks: status.yml
   when: 'OP_TYPE == "status"'
+
+# 卸载zookeeper
+- import_tasks: uninstall.yml
+  when: 'OP_TYPE == "uninstall"'

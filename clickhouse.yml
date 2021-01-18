@@ -4,4 +4,4 @@
     - { role: 'clickhouse', OP_TYPE: install }
     - { role: 'clickhouse', OP_TYPE: start }
     - { role: 'clickhouse', OP_TYPE: status }
-  #  - { role: 'zookeeper', OP_TYPE: stop }
+#    - { role: 'clickhouse', OP_TYPE: uninstall }
