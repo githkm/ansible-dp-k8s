@@ -9,18 +9,19 @@ docker_data_dir: /var/lib
 docker_bip: 169.254.123.1/24
 docker_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/docker/docker-{{ docker_version }}.tar.gz"
 #etcd v3.3.8 v3.4.3
-etcd_version: v3.3.8
+etcd_version: v3.4.3
 etcd_dir: "/opt/etcd-{{ etcd_version  }}"
 etcd_data_dir: /var/lib/etcd
 etcd_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/etcd/etcd-{{ etcd_version  }}.tar.gz"
-etcd_token: c533f5tb-2d99-4060-9d64-bf4143d2a799
+etcd_token: c577f5tb-2d99-4060-9d64-bf4143d2a799
 #证书
 ssl_dir: /opt/cert
 #k8s
 #kubernetes_version: 1.12.6-aliyun.1
 #kubernetes_version: 1.14.6-aliyun.1
 #kubernetes_version: 1.14.8-aliyun.1
-kubernetes_version: 1.16.6-aliyun.1
+#kubernetes_version: 1.16.6-aliyun.1
+kubernetes_version: 1.18.8-aliyun.1
 #kubernetes_version: 1.15.4
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
 kube_certs_time: 3650
@@ -45,7 +46,7 @@ drain_nodes: false
 need_check_kubelet_version: false
 #负载均衡
 keepalived_enable: true
-loadbalancer_apiserver_ip: 10.75.1.180
+loadbalancer_apiserver_ip: 10.75.1.40
 #公网地址，没有就注释掉
 loadbalancer_apiserver_ext_ip: 182.140.244.151
 loadbalancer_apiserver_port: 5443
@@ -62,8 +63,8 @@ flannel_image_repo: "registry.cn-hangzhou.aliyuncs.com/zalmanzhao/flannel"
 # v0.8.0 v0.9.0 0.11.0 版本可选
 flannel_image_tag: "v0.11.0"
 coredns_image_repo: "registry.cn-hangzhou.aliyuncs.com/zalmanzhao/coredns"
-# 1.3.1  1.6.2 版本可选
-coredns_image_tag: "1.6.2"
+# 1.3.1  1.6.2  1.6.7 版本可选
+coredns_image_tag: "1.6.7"
 metrics_server_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server-amd64"
 metrics_server_tag: "v0.3.1"
 metrics_server_nanny_repo: "registry.cn-hangzhou.aliyuncs.com/google_containers/addon-resizer"

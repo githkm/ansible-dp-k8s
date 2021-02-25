@@ -1,26 +1,26 @@
 [etcd]
-10.75.1.181  NODE_NAME=10.75.1.181-name-1
-10.75.1.182  NODE_NAME=10.75.1.182-name-2
-10.75.1.183  NODE_NAME=10.75.1.183-name-3
+10.75.1.41  NODE_NAME=10.75.1.41-name-1
+10.75.1.42  NODE_NAME=10.75.1.42-name-2
+10.75.1.43  NODE_NAME=10.75.1.43-name-3
 
 [etcd:vars]
 ansible_ssh_user=root
 ansible_ssh_pass=123abcABC
 
 [keepalived]
-10.75.1.181   type=MASTER priority=100
-10.75.1.182   type=BACKUP priority=99
-10.75.1.183   type=BACKUP priority=98
+10.75.1.41   type=MASTER priority=100
+10.75.1.42   type=BACKUP priority=99
+10.75.1.43   type=BACKUP priority=98
 
 [keepalived:vars]
-vip=10.75.1.180
+vip=10.75.1.40
 ansible_ssh_user=root
 ansible_ssh_pass=123abcABC
 
 [kube-master]
-10.75.1.181
-10.75.1.182
-10.75.1.183
+10.75.1.41
+10.75.1.42
+10.75.1.43
 
 [kube-master:vars]
 ansible_ssh_user=root

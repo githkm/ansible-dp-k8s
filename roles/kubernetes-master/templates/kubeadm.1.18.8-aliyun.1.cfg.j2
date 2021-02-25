@@ -1,0 +1,57 @@
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: InitConfiguration
+bootstrapTokens:
+- token: 
+nodeRegistration:
+  name: {{ ansible_default_ipv4.address }}
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    service-node-port-range: {{ kube_apiserver_node_port_range }}
+    feature-gates: VolumeSnapshotDataSource=true,CSINodeInfo=true,CSIDriverRegistry=true
+  extraVolumes:
+  - hostPath: /etc/localtime
+    mountPath: /etc/localtime
+    name: localtime
+  certSANs:
+{% for host in groups['kube-master'] %}
+  - {{ host }}
+{% endfor %}
+{% if loadbalancer_apiserver_ext_ip is defined %}
+  - {{ loadbalancer_apiserver_ext_ip }}
+{% endif %}
+  - {{ loadbalancer_apiserver_ip }}
+  - {{ kube_apiserver_ip }}
+
+  - 127.0.0.1
+controllerManager:
+  extraArgs:
+    horizontal-pod-autoscaler-use-rest-clients: "true"
+    node-cidr-mask-size: "25"
+  extraVolumes:
+  - hostPath: /etc/localtime
+    mountPath: /etc/localtime
+    name: localtime
+scheduler:
+  extraVolumes:
+  - hostPath: /etc/localtime
+    mountPath: /etc/localtime
+    name: localtime
+etcd:
+  external:
+    caFile: /etc/kubernetes/pki/etcd/ca.pem
+    certFile: /etc/kubernetes/pki/etcd/etcd-client.pem
+    keyFile: /etc/kubernetes/pki/etcd/etcd-client-key.pem
+    endpoints:
+{% for host in groups['etcd'] %}
+    - https://{{ host }}:2379
+{% endfor %}
+    
+networking:
+  dnsDomain: {{ kube_dns_domain }}
+  podSubnet: {{ kube_pods_subnet }}
+  serviceSubnet: {{ kube_service_addresses }}
+imageRepository: {{ kube_image_repo }}
+kubernetesVersion: v{{ kubernetes_version }}
