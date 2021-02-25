@@ -1,10 +1,10 @@
 ##### 1、安装基础环境（准备好至少三台主机作为master，如果添加node节点再增加..）
 
 ```
-yum install git vim -y
-git clone https://git.boleme.net/ops-group/ansible.git
-yum -y install python-devel python-pip
+yum install git vim sshpass python-devel python-pip -y
+pip install --upgrade pip -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 pip install ansible netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+git clone https://git.boleme.net/ops-group/ansible.git
 ```
 ##### 2、vim /etc/ansible/ansible.cfg (创建文件前先“mkdir -p /etc/ansible”)
 ```
