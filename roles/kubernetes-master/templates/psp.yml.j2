@@ -9,7 +9,6 @@ metadata:
     seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
   labels:
     kubernetes.io/cluster-service: "true"
-    ack.alicloud.com/component: pod-security-policy
 spec:
   privileged: true
   allowPrivilegeEscalation: true
@@ -40,7 +39,6 @@ metadata:
   name: podsecuritypolicy:privileged
   labels:
     kubernetes.io/cluster-service: "true"
-    ack.alicloud.com/component: pod-security-policy
 rules:
 - apiGroups:
   - policy
@@ -60,7 +58,6 @@ metadata:
     kubernetes.io/description: 'Allow all authenticated users to create privileged pods.'
   labels:
     kubernetes.io/cluster-service: "true"
-    ack.alicloud.com/component: pod-security-policy
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
