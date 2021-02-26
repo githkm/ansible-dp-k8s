@@ -72,6 +72,14 @@
 - name: "创建kube-proxy"
   command: "kubectl apply -f /etc/kubernetes/kube-proxy.yml -n kube-system"
   when: inventory_hostname == groups['kube-master'][0]
+- name: "1.18.8以上创建PSP配置"
+  template:
+    src: "psp.yml.j2"
+    dest: /etc/kubernetes/psp.yml
+  when: inventory_hostname == groups['kube-master'][0] and kubernetes_version == '1.18.8-aliyun.1'
+- name: "1.18.8以上应用PSP配置"
+  command: "kubectl apply -f /etc/kubernetes/psp.yml"  
+  when: inventory_hostname == groups['kube-master'][0] and kubernetes_version == '1.18.8-aliyun.1'
 - name: "调整1.12.6版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
@@ -93,7 +101,7 @@
 - name: "调整1.18.8以上版本apiserver配置"
   shell: >
     cd /etc/kubernetes/manifests &&
-    sed -i "s/NodeRestriction/NodeRestriction,Initializers/g" kube-apiserver.yaml &&
+    sed -i "s/NodeRestriction/NodeRestriction,PodSecurityPolicy/g" kube-apiserver.yaml &&
     sed -i "/- kube-apiserver/a\ \ \ \ - --runtime-config=admissionregistration.k8s.io/v1beta1" kube-apiserver.yaml
   when: kubernetes_version == '1.18.8-aliyun.1'
 - name: "调整所有apiserver配置"

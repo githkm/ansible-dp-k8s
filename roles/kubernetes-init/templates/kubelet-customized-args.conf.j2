@@ -1,0 +1,1 @@
+KUBELET_CUSTOMIZED_ARGS=" --eviction-hard=imagefs.available<15%,memory.available<300Mi,nodefs.available<10%,nodefs.inodesFree<5% --system-reserved=memory=300Mi --kube-reserved=memory=400Mi --kube-reserved=pid=10000 --system-reserved=pid=10000 "
