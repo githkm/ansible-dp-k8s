@@ -1,14 +1,15 @@
-apiVersion: kubeadm.k8s.io/v1beta1
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: InitConfiguration
 bootstrapTokens:
-- token: 
+- token: {{ kubeadm_token }} 
 nodeRegistration:
   name: {{ ansible_default_ipv4.address }}
 ---
-apiVersion: kubeadm.k8s.io/v1beta1
+apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 apiServer:
   extraArgs:
+    profiling: "false"
     service-node-port-range: {{ kube_apiserver_node_port_range }}
     feature-gates: VolumeSnapshotDataSource=true,CSINodeInfo=true,CSIDriverRegistry=true
   extraVolumes:
@@ -28,6 +29,7 @@ apiServer:
   - 127.0.0.1
 controllerManager:
   extraArgs:
+    profiling: "false"
     horizontal-pod-autoscaler-use-rest-clients: "true"
     node-cidr-mask-size: "25"
   extraVolumes:
@@ -35,6 +37,8 @@ controllerManager:
     mountPath: /etc/localtime
     name: localtime
 scheduler:
+  extraArgs:
+    profiling: "false"
   extraVolumes:
   - hostPath: /etc/localtime
     mountPath: /etc/localtime

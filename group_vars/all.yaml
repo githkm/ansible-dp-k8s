@@ -21,6 +21,7 @@ ssl_dir: /opt/cert
 #kubernetes_version: 1.14.6-aliyun.1
 #kubernetes_version: 1.14.8-aliyun.1
 #kubernetes_version: 1.16.6-aliyun.1
+#kubernetes_version: 1.16.9-aliyun.1
 kubernetes_version: 1.18.8-aliyun.1
 #kubernetes_version: 1.15.4
 kubernetes_url: "https://ops-files.obs.cn-east-2.myhuaweicloud.com/pkg/kubernetes/kubernetes-{{ kubernetes_version }}.tar.gz"
@@ -40,7 +41,7 @@ kube_apiserver_node_port_range: 30000-32767
 kube_apiserver_port: 6443
 kube_proxy_mode: ipvs
 #kube_proxy_mode: iptables
-kubeadm_token: fpn5l0.mfegiopmlnlsk6bb  #新加节点时记得更新此token
+kubeadm_token: n8hekd.ivig0dbp499almut  #新加节点时记得更新此token
 #升级时是否驱逐节点上的容器组
 drain_nodes: false
 need_check_kubelet_version: false
