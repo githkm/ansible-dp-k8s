@@ -1,9 +1,10 @@
 ##### 1、安装基础环境（准备好至少三台主机作为master，如果添加node节点再增加..）
 
 ```
+yum -y install epel-release
 yum install git vim sshpass python-devel python-pip -y
-pip install --upgrade pip -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-pip install ansible netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install --upgrade "pip < 21.0" -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+pip install ansible=="2.9.10" netaddr -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 git clone https://git.boleme.net/ops-group/ansible.git
 ```
 
